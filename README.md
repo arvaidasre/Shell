@@ -70,6 +70,11 @@ Unregister with `shell -unregister -restart`.
   overrides the install-folder file — no admin rights needed, survives
   reinstalls. Full steps in [`docs/installation.html`](docs/installation.html).
 
+The default config is a minimal Win7-style menu (system items only,
+no duplicates, type-to-search). Extra menus (Go to, Terminal,
+Development, File management) ship in `imports/` — add an
+`import 'imports/<name>.nss'` line to `shell.nss` to enable them.
+
 ## Building from source
 
 Minimal toolchain (what the CI uses):
