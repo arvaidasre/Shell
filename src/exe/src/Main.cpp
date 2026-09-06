@@ -1144,9 +1144,10 @@ static void manager_refresh_lang_button()
 {
 	if(!g_lang_button)
 		return;
-	string label;
-	label.format(L"Language: %s\tCtrl+L", manager_lang_name(manager_config_lang(manager_effective_config())));
-	g_lang_button->Text = label.move();
+	string label = L"Language: ";
+	label += manager_lang_name(manager_config_lang(manager_effective_config()));
+	label += L"\tCtrl+L";
+	g_lang_button->Text = label;
 	::InvalidateRect(g_lang_button->Handle, nullptr, TRUE);
 }
 
@@ -1163,9 +1164,12 @@ static bool manager_copy_tree(const string &from, const string &to)
 	{
 		if(wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
 			continue;
-		string src, dst;
-		src.format(L"%s\\%s", from.c_str(), fd.cFileName);
-		dst.format(L"%s\\%s", to.c_str(), fd.cFileName);
+		string src = from;
+		src += L"\\";
+		src += fd.cFileName;
+		string dst = to;
+		dst += L"\\";
+		dst += fd.cFileName;
 		if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if(!manager_copy_tree(src, dst))
@@ -1267,17 +1271,28 @@ static void manager_doctor()
 		if(Registry::Exists(HKEY_CLASSES_ROOT, k.c_str(), 0))
 			treat = L"yes";
 	}
-	string report, line;
-	report.format(L"Shell %s (%s)\r\n", APP_VERSION, APP_PROCESS);
-	line.format(L"DLL: %s (%s)\r\n", dll.c_str(), IO::Path::IsFileExists(dll) ? L"found" : L"MISSING");
+	string report = L"Shell ";
+	report += APP_VERSION;
+	report += L" (";
+	report += APP_PROCESS;
+	report += L")\r\n";
+	string line = L"DLL: ";
+	line += dll.c_str();
+	line += IO::Path::IsFileExists(dll) ? L" (found)\r\n" : L" (MISSING)\r\n";
 	report += line.c_str();
-	line.format(L"Registered: %s\r\n", RegistryConfig::IsRegistered() ? L"yes" : L"no");
+	line = L"Registered: ";
+	line += RegistryConfig::IsRegistered() ? L"yes\r\n" : L"no\r\n";
 	report += line.c_str();
-	line.format(L"Win11 modern takeover (TreatAs): %s\r\n", treat.c_str());
+	line = L"Win11 modern takeover (TreatAs): ";
+	line += treat.c_str();
+	line += L"\r\n";
 	report += line.c_str();
-	line.format(L"Config: %s (%s)\r\n", cfg.c_str(), IO::Path::IsFileExists(cfg) ? L"found" : L"MISSING");
+	line = L"Config: ";
+	line += cfg.c_str();
+	line += IO::Path::IsFileExists(cfg) ? L" (found)\r\n" : L" (MISSING)\r\n";
 	report += line.c_str();
-	line.format(L"Menu language: %s", manager_lang_name(manager_config_lang(cfg)));
+	line = L"Menu language: ";
+	line += manager_lang_name(manager_config_lang(cfg));
 	report += line.c_str();
 	::MessageBoxW(nullptr, report.c_str(), L"Shell check", MB_OK | MB_ICONINFORMATION);
 }
@@ -1400,8 +1415,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 					if(manager_config_set_lang(cfg, next))
 					{
 						manager_refresh_lang_button();
-						string msg;
-						msg.format(L"Menu language: %s.\nTakes effect when the menu opens next.", manager_lang_name(next));
+						string msg = L"Menu language: ";
+						msg += manager_lang_name(next);
+						msg += L".\nTakes effect when the menu opens next.";
 						::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
 					}
 					else
@@ -1424,14 +1440,19 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 					string parent = IO::Path::Parent(dir);
 					SYSTEMTIME st{};
 					::GetLocalTime(&st);
-					string bak;
-					bak.format(L"%s\\config-backup-%04d%02d%02d-%02d%02d", parent.c_str(),
-						st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+					string bak = parent;
+					bak += L"\\config-backup-";
+					{
+						string stamp;
+						stamp.format(L"%04d%02d%02d-%02d%02d",
+							st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+						bak += stamp.c_str();
+					}
 					bool ok = manager_copy_tree(dir, bak);
 					if(ok)
 					{
-						string msg;
-						msg.format(L"Config backed up to:\n%s", bak.c_str());
+						string msg = L"Config backed up to:\n";
+						msg += bak.c_str();
 						::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
 					}
 					else
