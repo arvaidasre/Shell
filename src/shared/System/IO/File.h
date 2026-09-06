@@ -357,10 +357,15 @@ namespace Nilesoft
 					if(from_file.Read(buf, sizeof(wchar_t), z)) {
 						File to_file(to);
 						if(to_file.Open(true, Encoding::Binary)) {
-							to_file.Write(buf, sizeof(wchar_t), z);
+							if(to_file.Write(buf, sizeof(wchar_t), z) == z) {
+								delete[] buf;
+								return true;
+							}
 						}
 					}
+					delete[] buf;
 				}
+				return false;
 			}
 		
 			static EncodingType GetFileEncoding(const wchar_t* path)
