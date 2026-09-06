@@ -42,6 +42,9 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
+    - name: Restore NuGet packages
+      run: dotnet restore src/manager/Shell.Manager/Shell.Manager.csproj -r ${{ matrix.rid }}
+
     - name: Publish self-contained
       # NOTE: must build with VS MSBuild, not `dotnet` CLI - only VS ships
       # the Appx packaging tasks (RemovePayloadDuplicates) that WinUI needs.
