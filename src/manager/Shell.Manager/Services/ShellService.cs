@@ -38,6 +38,13 @@ internal static class ShellService
             var nextToMe = Path.Combine(AppContext.BaseDirectory, "shell.exe");
             if (File.Exists(nextToMe))
                 return nextToMe;
+            var parentDir = Path.GetDirectoryName(AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar));
+            if (parentDir is not null)
+            {
+                var upOne = Path.Combine(parentDir, "shell.exe");
+                if (File.Exists(upOne))
+                    return upOne;
+            }
             var local = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Programs", "Shell", "shell.exe");

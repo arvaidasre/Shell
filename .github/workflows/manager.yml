@@ -51,7 +51,7 @@ jobs:
       run: msbuild src/manager/Shell.Manager/Shell.Manager.csproj /p:Configuration=Release /p:RuntimeIdentifier=${{ matrix.rid }} /p:SelfContained=true /t:Publish /p:PublishDir="$env:GITHUB_WORKSPACE/publish/${{ matrix.arch }}/"
 
     - name: Copy app XBF/PRI into publish dir
-      # msbuild /t:Publish leaves App.xbf/MainWindow.xbf/Shell.Manager.pri
+      # msbuild /t:Publish leaves App.xbf/MainWindow.xbf/Views/*.xbf/Shell.Manager.pri
       # in bin/ - without them the app crashes at startup (E_FAIL).
       shell: pwsh
       run: |
@@ -59,6 +59,9 @@ jobs:
         $pub = "$env:GITHUB_WORKSPACE/publish/${{ matrix.arch }}"
         Get-ChildItem -LiteralPath $bin -File -Include *.xbf, *.pri |
           Copy-Item -Destination $pub -Force
+        New-Item -ItemType Directory -Path "$pub/Views" -Force | Out-Null
+        Get-ChildItem -LiteralPath "$bin/Views" -File -Include *.xbf |
+          Copy-Item -Destination "$pub/Views" -Force
         Get-ChildItem -LiteralPath $pub -File -Include *.xbf, *.pri |
           Select-Object Name
 
