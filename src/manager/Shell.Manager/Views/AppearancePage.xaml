@@ -1,0 +1,45 @@
+<Page
+    x:Class="Shell.Manager.Views.AppearancePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" Padding="24,8,24,24">
+            <TextBlock Text="Appearance" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Language" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox
+                            MinWidth="200"
+                            ItemsSource="{x:Bind ViewModel.Languages}"
+                            SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay}"
+                            DisplayMemberPath="Name" />
+                        <Button Content="Apply language" Command="{x:Bind ViewModel.ApplyLanguageCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="Theme" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox
+                            MinWidth="200"
+                            ItemsSource="{x:Bind ViewModel.ThemePresets}"
+                            SelectedItem="{x:Bind ViewModel.SelectedThemePreset, Mode=TwoWay}" />
+                        <Button Content="Apply theme" Command="{x:Bind ViewModel.ApplyThemeCommand}" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        Text="Language switches shell.nss lang include. Theme presets map to imports/theme.nss or imports/themes/&lt;name&gt;.nss." />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

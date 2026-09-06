@@ -1,0 +1,76 @@
+<Page
+    x:Class="Shell.Manager.Views.ToolsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Page.Resources>
+        <ContentDialog
+            x:Name="ReportDialog"
+            Title="Check report"
+            CloseButtonText="Close">
+            <ScrollViewer MaxHeight="400">
+                <TextBlock
+                    x:Name="ReportTextBlock"
+                    IsTextSelectionEnabled="True"
+                    TextWrapping="Wrap" />
+            </ScrollViewer>
+        </ContentDialog>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" Padding="24,8,24,24">
+            <TextBlock Text="Tools" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <InfoBar
+                Title="Update available"
+                Message="{x:Bind ViewModel.LatestVersion, Mode=OneWay}"
+                Severity="Informational"
+                IsOpen="{x:Bind ViewModel.HasUpdate, Mode=OneWay}"
+                IsClosable="True" />
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Maintenance" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Open config folder"
+                        Command="{x:Bind ViewModel.OpenConfigFolderCommand}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Backup config"
+                        Command="{x:Bind ViewModel.BackupConfigCommand}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Check for updates"
+                        Command="{x:Bind ViewModel.CheckUpdatesCommand}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Run check"
+                        Click="RunCheckButton_Click" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Start menu shortcut"
+                        Command="{x:Bind ViewModel.EnsureShortcutCommand}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Report issue"
+                        Command="{x:Bind ViewModel.OpenIssuesCommand}" />
+                    <Button
+                        HorizontalAlignment="Left"
+                        Content="Releases"
+                        Command="{x:Bind ViewModel.OpenReleasesCommand}" />
+                    <ProgressRing
+                        Width="24"
+                        Height="24"
+                        HorizontalAlignment="Left"
+                        IsActive="{x:Bind ViewModel.IsBusy, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

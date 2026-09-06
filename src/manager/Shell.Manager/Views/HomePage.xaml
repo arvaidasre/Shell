@@ -1,0 +1,47 @@
+<Page
+    x:Class="Shell.Manager.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" Padding="24,8,24,24">
+            <TextBlock Text="Home" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock
+                Text="{x:Bind ViewModel.SubtitleText, Mode=OneWay}"
+                Style="{StaticResource BodyTextBlockStyle}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
+                        Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.TakeoverText, Mode=OneWay}"
+                        Style="{StaticResource BodyTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.ConfigText, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        IsTextSelectionEnabled="True"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                    Content="Register"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.RegisterCommand}" />
+                <Button Content="Unregister" Command="{x:Bind ViewModel.UnregisterCommand}" />
+                <Button Content="Restart Explorer" Command="{x:Bind ViewModel.RestartExplorerCommand}" />
+                <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshPageCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

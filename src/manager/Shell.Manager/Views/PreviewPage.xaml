@@ -1,0 +1,99 @@
+<Page
+    x:Class="Shell.Manager.Views.PreviewPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Shell.Manager.ViewModels">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" Padding="24,8,24,24">
+            <TextBlock Text="Preview" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock
+                Text="Mock preview of the context menu structure — not the live Explorer menu."
+                Style="{StaticResource CaptionTextBlockStyle}" />
+
+            <ComboBox
+                Header="Preset"
+                Width="200"
+                HorizontalAlignment="Left"
+                SelectedItem="{x:Bind ViewModel.SelectedPreset, Mode=TwoWay}">
+                <x:String>Desktop</x:String>
+                <x:String>Folder</x:String>
+                <x:String>File</x:String>
+            </ComboBox>
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="0"
+                Width="360"
+                HorizontalAlignment="Left">
+                <StackPanel>
+                    <ListView
+                        ItemsSource="{x:Bind ViewModel.MenuItems, Mode=OneWay}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="MinHeight" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PreviewMenuItem">
+                                <Grid>
+                                    <Rectangle
+                                        Visibility="{x:Bind SeparatorVisibility, Mode=OneTime}"
+                                        Height="1"
+                                        Fill="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Opacity="0.3"
+                                        Margin="12,6"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Center" />
+                                    <Grid
+                                        Visibility="{x:Bind ItemVisibility, Mode=OneTime}"
+                                        Opacity="{x:Bind ItemOpacity, Mode=OneTime}"
+                                        Padding="12,7">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="32" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{x:Bind Glyph, Mode=OneTime}"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            FontSize="16"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Text="{x:Bind Label, Mode=OneTime}"
+                                            Style="{StaticResource BodyTextBlockStyle}"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            Text="&#xE76C;"
+                                            Visibility="{x:Bind ChevronVisibility, Mode=OneTime}"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <Button
+                        Content="Refresh"
+                        Command="{x:Bind ViewModel.RefreshCommand}"
+                        Margin="12"
+                        HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock
+                Text="{x:Bind ViewModel.StatusesText, Mode=OneWay}"
+                Style="{StaticResource CaptionTextBlockStyle}" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

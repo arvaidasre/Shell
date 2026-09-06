@@ -17,106 +17,58 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border x:Name="DragBar" Height="48" Background="Transparent">
+        <Grid x:Name="AppTitleBar" Height="48">
             <TextBlock Text="Shell Manager" VerticalAlignment="Center" Margin="16,0,0,0"
-                       FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </Border>
+                       Style="{StaticResource CaptionTextBlockStyle}" />
+        </Grid>
 
-        <ScrollViewer Grid.Row="1" Padding="24,8,24,24">
-            <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Stretch">
+        <NavigationView Grid.Row="1" x:Name="NavView"
+                        PaneDisplayMode="Left"
+                        IsBackButtonVisible="Collapsed"
+                        SelectionChanged="NavView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Home" Tag="Shell.Manager.Views.HomePage">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Home" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Appearance" Tag="Shell.Manager.Views.AppearancePage">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE706;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Menus" Tag="Shell.Manager.Views.MenusPage">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="List" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Tools" Tag="Shell.Manager.Views.ToolsPage">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE90F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Preview" Tag="Shell.Manager.Views.PreviewPage">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8A1;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Content="Settings" Tag="Shell.Manager.Views.SettingsPage">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Setting" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
 
-                <StackPanel Spacing="4">
-                    <TextBlock x:Name="TitleText" Text="Shell" FontSize="28" FontWeight="SemiBold" />
-                    <TextBlock x:Name="SubtitleText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                </StackPanel>
-
-                <InfoBar x:Name="Notice" IsOpen="False" Severity="Informational" />
-
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Status" FontWeight="SemiBold" FontSize="15" />
-                        <StackPanel Spacing="4">
-                            <TextBlock x:Name="RegisteredText" />
-                            <TextBlock x:Name="TakeoverText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            <TextBlock x:Name="ConfigText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button x:Name="RegisterButton" Content="Register" Style="{StaticResource AccentButtonStyle}" Click="RegisterButton_Click" />
-                            <Button x:Name="UnregisterButton" Content="Unregister" Click="UnregisterButton_Click" />
-                            <Button x:Name="RestartButton" Content="Restart Explorer" Click="RestartButton_Click" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Language &amp; theme" FontWeight="SemiBold" FontSize="15" />
-                        <ComboBox x:Name="LanguageBox" Header="Menu language" HorizontalAlignment="Stretch"
-                                  SelectionChanged="LanguageBox_SelectionChanged">
-                            <ComboBoxItem Content="English" Tag="en" />
-                            <ComboBoxItem Content="Lietuvių" Tag="lt" />
-                            <ComboBoxItem Content="Русский" Tag="ru" />
-                        </ComboBox>
-                        <ComboBox x:Name="ThemeBox" Header="Theme preset" HorizontalAlignment="Stretch"
-                                  SelectionChanged="ThemeBox_SelectionChanged">
-                            <ComboBoxItem Content="Default" Tag="default" />
-                            <ComboBoxItem Content="Mica" Tag="mica" />
-                            <ComboBoxItem Content="OLED black" Tag="oled" />
-                            <ComboBoxItem Content="Light" Tag="light" />
-                        </ComboBox>
-                        <TextBlock Text="Language and theme apply after Explorer restarts."
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
-                    </StackPanel>
-                </Border>
-
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Menus &amp; icons" FontWeight="SemiBold" FontSize="15" />
-                        <ToggleSwitch x:Name="GotoToggle" Content="Go to menu" Tag="goto" Toggled="SectionToggle_Toggled" />
-                        <ToggleSwitch x:Name="TerminalToggle" Content="Terminal menu" Tag="terminal" Toggled="SectionToggle_Toggled" />
-                        <ToggleSwitch x:Name="DevelopToggle" Content="Development menu" Tag="develop" Toggled="SectionToggle_Toggled" />
-                        <ToggleSwitch x:Name="FileManageToggle" Content="File management menu" Tag="file-manage" Toggled="SectionToggle_Toggled" />
-                        <ToggleSwitch x:Name="IconsToggle" Content="Show menu icons" Toggled="IconsToggle_Toggled" />
-                        <Slider x:Name="IconSizeSlider" Header="Icon size (px)" Minimum="12" Maximum="32" StepFrequency="1" ValueChanged="IconSizeSlider_ValueChanged" />
-                        <Slider x:Name="DelaySlider" Header="Menu show delay (ms)" Minimum="0" Maximum="500" StepFrequency="25" ValueChanged="DelaySlider_ValueChanged" />
-                        <ToggleSwitch x:Name="TipsToggle" Content="Tooltips" Toggled="TipsToggle_Toggled" />
-                        <Button Content="Edit shell.nss" Click="EditConfigButton_Click" HorizontalAlignment="Left" />
-                        <TextBlock Text="Changes apply after Explorer restarts."
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
-                    </StackPanel>
-                </Border>
-
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="1" CornerRadius="8" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Tools" FontWeight="SemiBold" FontSize="15" />
-                        <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" ItemWidth="220">
-                            <Button Content="Open config folder" Click="OpenConfigButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                            <Button Content="Backup config" Click="BackupButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                            <Button Content="Check for updates" Click="UpdateButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                            <Button Content="Start Menu shortcut" Click="ShortcutButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                            <Button Content="Run check" Click="CheckButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                            <Button Content="Report issue" Click="IssueButton_Click" Margin="0,0,8,8" HorizontalAlignment="Stretch" />
-                        </VariableSizedWrapGrid>
-                    </StackPanel>
-                </Border>
-
-                <HyperlinkButton Content="arvaidasre/Shell on GitHub" Click="ReleasesButton_Click" HorizontalAlignment="Left" />
-
-            </StackPanel>
-        </ScrollViewer>
-
-        <ContentDialog x:Name="ReportDialog" Title="Shell check" PrimaryButtonText="Close" DefaultButton="Primary">
-            <ScrollViewer MaxHeight="400">
-                <TextBlock x:Name="ReportText" IsTextSelectionEnabled="True" FontFamily="Consolas" TextWrapping="Wrap" />
-            </ScrollViewer>
-        </ContentDialog>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <InfoBar x:Name="StatusInfoBar" IsOpen="False" Severity="Informational" Margin="24,8,24,0" />
+                <Frame x:Name="ContentFrameElement" Grid.Row="1" />
+            </Grid>
+        </NavigationView>
     </Grid>
 </Window>

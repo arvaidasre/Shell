@@ -1,0 +1,95 @@
+<Page
+    x:Class="Shell.Manager.Views.MenusPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Spacing="16" Padding="24,8,24,24">
+            <TextBlock Text="Menus" Style="{StaticResource TitleTextBlockStyle}" />
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Sections" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ToggleSwitch
+                        Header="Go to"
+                        IsOn="{x:Bind ViewModel.GotoEnabled, Mode=TwoWay}"
+                        Tag="goto"
+                        Toggled="SectionToggle_Toggled" />
+                    <ToggleSwitch
+                        Header="Terminal"
+                        IsOn="{x:Bind ViewModel.TerminalEnabled, Mode=TwoWay}"
+                        Tag="terminal"
+                        Toggled="SectionToggle_Toggled" />
+                    <ToggleSwitch
+                        Header="Develop"
+                        IsOn="{x:Bind ViewModel.DevelopEnabled, Mode=TwoWay}"
+                        Tag="develop"
+                        Toggled="SectionToggle_Toggled" />
+                    <ToggleSwitch
+                        Header="File manage"
+                        IsOn="{x:Bind ViewModel.FileManageEnabled, Mode=TwoWay}"
+                        Tag="file-manage"
+                        Toggled="SectionToggle_Toggled" />
+                </StackPanel>
+            </Border>
+
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="16">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Icons and behavior" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <ToggleSwitch
+                            Header="Icons"
+                            IsOn="{x:Bind ViewModel.IconsEnabled, Mode=TwoWay}" />
+                        <Button Content="Apply" Command="{x:Bind ViewModel.ApplyIconsCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="Icon size" Style="{StaticResource BodyTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Slider
+                            x:Name="IconSizeSlider"
+                            Width="200"
+                            Minimum="12"
+                            Maximum="32"
+                            StepFrequency="1"
+                            Value="{x:Bind ViewModel.IconSize, Mode=OneWay}"
+                            ValueChanged="IconSizeSlider_ValueChanged" />
+                        <Button Content="Apply" Command="{x:Bind ViewModel.ApplyIconSizeCommand}" />
+                    </StackPanel>
+
+                    <TextBlock Text="Show delay (ms)" Style="{StaticResource BodyTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Slider
+                            x:Name="ShowDelaySlider"
+                            Width="200"
+                            Minimum="0"
+                            Maximum="500"
+                            StepFrequency="25"
+                            Value="{x:Bind ViewModel.ShowDelay, Mode=OneWay}"
+                            ValueChanged="ShowDelaySlider_ValueChanged" />
+                        <Button Content="Apply" Command="{x:Bind ViewModel.ApplyDelayCommand}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <ToggleSwitch
+                            Header="Tips"
+                            IsOn="{x:Bind ViewModel.TipsEnabled, Mode=TwoWay}" />
+                        <Button Content="Apply" Command="{x:Bind ViewModel.ApplyTipsCommand}" />
+                    </StackPanel>
+
+                    <Button Content="Edit shell.nss" Command="{x:Bind ViewModel.EditConfigCommand}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
