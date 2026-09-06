@@ -30,6 +30,7 @@ namespace Nilesoft
 				// Nilesoft Shell Script (NSS)
 				// Nilesoft Shell Object (NSO)
 				application.ConfigPortable = Path::Join(application.Dirctory, L"\\shell.nss").move();
+				application.ConfigAppData = Path::Join(Path::GetKnownFolder(FOLDERID_RoamingAppData), L"\\Nilesoft\\Shell\\shell.nss").move();
 				application.Config = application.ConfigPortable;
 
 				auto len = application.Path.length();

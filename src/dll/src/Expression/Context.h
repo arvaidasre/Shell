@@ -108,6 +108,7 @@ namespace Nilesoft
 		{
 			string Path;
 			string ConfigPortable;
+			string ConfigAppData;
 			string Config;
 			string Manager;
 			string Dirctory;

@@ -30,7 +30,12 @@ namespace Nilesoft
 
 			if(m_path.empty() || !Path::IsFileExists(m_path))
 			{
-				if(Path::IsFileExists(context.Application->ConfigPortable))
+				// Per-user config override: %AppData%\Nilesoft\Shell\shell.nss
+				// needs no admin rights, survives reinstall, and deleting it
+				// restores the defaults.
+				if(!context.Application->ConfigAppData.empty() && Path::IsFileExists(context.Application->ConfigAppData))
+					m_path = context.Application->ConfigAppData;
+				else if(Path::IsFileExists(context.Application->ConfigPortable))
 					m_path = context.Application->ConfigPortable;
 				else
 				{
