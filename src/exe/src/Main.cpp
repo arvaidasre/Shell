@@ -1003,8 +1003,6 @@ void Open(HWND hWnd, const wchar_t* cmd)
 }
 
 // ---- community fork: effective config + language + update helpers ----
-static UI::Button *g_lang_button = nullptr;
-
 static string manager_effective_config()
 {
 	// Mirrors the dll resolution order: registry override, %AppData%, install dir.
