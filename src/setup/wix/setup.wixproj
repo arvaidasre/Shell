@@ -3,5 +3,9 @@
     <OutputType>Package</OutputType>
     <OutputPath>..\..\bin\</OutputPath>
     <TargetName>setup-$(Platform.ToLower().Replace('win32', 'x86'))</TargetName>
+    <!-- Harvested WinAppRuntime satellite assemblies carry language IDs
+         that the legacy ICE03 check does not recognize (e.g. zh-HANT).
+         Suppress only this check; all other validation still runs. -->
+    <SuppressIces>ICE03</SuppressIces>
   </PropertyGroup>
 </Project>
