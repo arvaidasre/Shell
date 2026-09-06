@@ -269,6 +269,7 @@ namespace Nilesoft
 			if(list.empty())
 				return false;
 
+			_context.menu_count = (uint32_t)list.size();
 			int _this_index = 0;
 			
 			for(auto item : list)
@@ -1019,6 +1020,7 @@ namespace Nilesoft
 				return false;
 
 			//int _index = 0;
+			_context.menu_count = (uint32_t)menu->std_items->size();
 			for(auto item : *menu->std_items)
 			{
 				_context._this = nullptr;
