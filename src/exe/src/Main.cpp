@@ -73,6 +73,11 @@ int __stdcall btn_on_paint(UI::Control *s, int, WPARAM, LPARAM);
 
 LRESULT __stdcall WindowProc(HWND, UINT, WPARAM, LPARAM);
 
+// Forward declarations for the manager helpers defined below.
+static UI::Button *g_lang_button;
+static void manager_refresh_lang_button();
+static void manager_doctor();
+
 bool is_elevated = false;
 
 // Global Variables:
@@ -1123,8 +1128,9 @@ static bool manager_copy_tree(const string &from, const string &to)
 	{
 		if(wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
 			continue;
-		string src = from + L"\\" + fd.cFileName;
-		string dst = to + L"\\" + fd.cFileName;
+		string src, dst;
+		src.format(L"%s\\%s", from.c_str(), fd.cFileName);
+		dst.format(L"%s\\%s", to.c_str(), fd.cFileName);
 		if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if(!manager_copy_tree(src, dst))
@@ -1196,15 +1202,15 @@ static void manager_doctor()
 	string report, line;
 	report.format(L"Shell %s (%s)\r\n", APP_VERSION, APP_PROCESS);
 	line.format(L"DLL: %s (%s)\r\n", dll.c_str(), IO::Path::IsFileExists(dll) ? L"found" : L"MISSING");
-	report += line;
+	report += line.c_str();
 	line.format(L"Registered: %s\r\n", RegistryConfig::IsRegistered() ? L"yes" : L"no");
-	report += line;
+	report += line.c_str();
 	line.format(L"Win11 modern takeover (TreatAs): %s\r\n", treat.c_str());
-	report += line;
+	report += line.c_str();
 	line.format(L"Config: %s (%s)\r\n", cfg.c_str(), IO::Path::IsFileExists(cfg) ? L"found" : L"MISSING");
-	report += line;
+	report += line.c_str();
 	line.format(L"Menu language: %s", manager_lang_name(manager_config_lang(cfg)));
-	report += line;
+	report += line.c_str();
 	::MessageBoxW(nullptr, report.c_str(), L"Shell check", MB_OK | MB_ICONINFORMATION);
 }
 
