@@ -7,7 +7,7 @@
 	item(title="docs" image=\uE1C4 cmd='https://nilesoft.org/docs')
 	item(title="donate" image=\uE1A7 cmd='https://nilesoft.org/donate')
 }
-menu(where=@(this.count == 0) type="taskbar" image=icon.settings expanded=true)
+menu(type="taskbar" image=icon.settings expanded=true)
 {
 	menu(title=loc.apps image=\uE254)
 	{
