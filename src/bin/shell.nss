@@ -15,7 +15,10 @@ $ui_lang = "en"
 
 $loc_path='imports\lang\'
 import lang loc_path + "en.nss"
-import lang if(path.exists(loc_path + ui_lang + ".nss"),
+// path.exists is CWD-relative (install dir), but the import below
+// resolves in the config dir - so check the absolute config path.
+$loc_abs = path.parent(app.cfg) + '\imports\lang\'
+import lang if(path.exists(loc_abs + ui_lang + ".nss"),
                loc_path + ui_lang + ".nss",
                loc_path + "en.nss")
 

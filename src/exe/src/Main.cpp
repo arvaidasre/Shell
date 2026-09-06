@@ -1130,9 +1130,9 @@ static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
 static const wchar_t *manager_lang_name(const string &code)
 {
 	if(code.equals(L"lt"))
-		return L"Lietuvių";
+		return L"Lietuvi\u0173";
 	if(code.equals(L"ru"))
-		return L"Русский";
+		return L"\u0420\u0443\u0441\u0441\u043A\u0438\u0439";
 	return L"English";
 }
 
