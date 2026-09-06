@@ -9,6 +9,7 @@
 #include "Control.h"
 #include <shlwapi.h>
 #include <shlobj.h>
+#include <shobjidl.h>
 #include <winhttp.h>
 #include <cctype>
 #include <cstdio>
@@ -61,6 +62,7 @@ BOOL CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 #define ID_OPENCFG 0x011
 #define ID_BACKUPCFG 0x012
 #define ID_UPDATE 0x013
+#define ID_STARTMENU 0x014
 
 /////////
 #define SetWindowStyle(hwnd, style)	 ::SetWindowLongW((hwnd), GWL_STYLE, (style))
@@ -77,6 +79,7 @@ LRESULT __stdcall WindowProc(HWND, UINT, WPARAM, LPARAM);
 static UI::Button *g_lang_button;
 static void manager_refresh_lang_button();
 static void manager_doctor();
+static bool manager_create_start_shortcut();
 
 bool is_elevated = false;
 
@@ -393,6 +396,8 @@ bool Registration(REGOP reg)
 				//::SHChangeNotify(SHCNE_ASSOCCHANGED, 0, 0, 0);
 				//Windows::Explorer::Refresh();
 			}
+			if(reg.REGISTER)
+				manager_create_start_shortcut();
 			return true;
 		}
 		else if(reg.RESTART)
@@ -659,7 +664,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
         ::GetClientRect(::GetDesktopWindow(), &rc_screen);
 
         rc_window.right = dpi(430);
-        rc_window.bottom = dpi(352);
+        rc_window.bottom = dpi(384);
 
         rc_window.left = (rc_screen.right - rc_window.right) / 2;
         rc_window.top = (rc_screen.bottom - rc_window.bottom) / 2;
@@ -749,15 +754,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 		auto btn_opencfg = new UI::Button(L"Open config folder\tCtrl+O", { btn_left, btn_top2 + btn_h + offset_2, btn_w, btn_h }, ID_OPENCFG, main_window, BS_OWNERDRAW);
 		auto btn_backup = new UI::Button(L"Backup config\tCtrl+B", { btn_left, btn_top2 + (btn_h + offset_2) * 2, btn_w, btn_h }, ID_BACKUPCFG, main_window, BS_OWNERDRAW);
 		auto btn_update = new UI::Button(L"Check for updates\tCtrl+P", { btn_left, btn_top2 + (btn_h + offset_2) * 3, btn_w, btn_h }, ID_UPDATE, main_window, BS_OWNERDRAW);
+		auto btn_startmenu = new UI::Button(L"Add Start Menu shortcut\tCtrl+M", { btn_left, btn_top2 + (btn_h + offset_2) * 4, btn_w, btn_h }, ID_STARTMENU, main_window, BS_OWNERDRAW);
 		manager_refresh_lang_button();
 
 
-        main_window->SetColor({ btn_reg, btn_unreg,btn_restart,btn_web,btn_email,btn_bug,g_lang_button,btn_opencfg,btn_backup,btn_update }, 
+        main_window->SetColor({ btn_reg, btn_unreg,btn_restart,btn_web,btn_email,btn_bug,g_lang_button,btn_opencfg,btn_backup,btn_update,btn_startmenu }, 
 							  m_theme.text.nor, m_theme.back.nor, m_theme.text.sel, m_theme.back.sel);//0xeeeee0
         main_window->SetColor({ btn_close }, 0xFFFFFF, m_theme.back.nor, m_theme.text.nor, 0x2311E8);//E81123
 
 		btn_reg->OnDraw = btn_unreg->OnDraw = btn_restart->OnDraw = btn_on_paint;
-		g_lang_button->OnDraw = btn_opencfg->OnDraw = btn_backup->OnDraw = btn_update->OnDraw = btn_on_paint;
+		g_lang_button->OnDraw = btn_opencfg->OnDraw = btn_backup->OnDraw = btn_update->OnDraw = btn_startmenu->OnDraw = btn_on_paint;
 
         auto ret = app.Run(main_window);
 
@@ -1057,9 +1063,10 @@ static string manager_config_lang(const string &cfg)
 
 static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
 {
-	// Same-length in-place swap of the 2-letter code: encoding-safe.
+	// Same-length in-place swap of the 2-letter code (encoding-safe).
+	// If there is no $lang line yet, one is prepended (single-byte files only).
 	FILE *f = nullptr;
-	if(_wfopen_s(&f, cfg.c_str(), L"r+b") != 0 || !f)
+	if(_wfopen_s(&f, cfg.c_str(), L"rb") != 0 || !f)
 		return false;
 	bool ok = false;
 	fseek(f, 0, SEEK_END);
@@ -1078,14 +1085,40 @@ static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
 				if(q1 != std::string::npos && q1 + 3 < view.size() && view[q1 + 3] == '"' &&
 				   isalpha((unsigned char)view[q1 + 1]) && isalpha((unsigned char)view[q1 + 2]))
 				{
+					fclose(f);
+					f = nullptr;
+					if(_wfopen_s(&f, cfg.c_str(), L"r+b") != 0 || !f)
+						return false;
 					char narrow[3] = { (char)code[0], (char)code[1], 0 };
 					fseek(f, (long)q1 + 1, SEEK_SET);
 					ok = fwrite(narrow, 1, 2, f) == 2;
 				}
 			}
+			else
+			{
+				bool single = true;
+				for(size_t i = 0; i < view.size() && i < 1024; i++)
+				{
+					if(view[i] == '\0') { single = false; break; }
+				}
+				if(single)
+				{
+					fclose(f);
+					f = nullptr;
+					std::string out = "$lang = \"";
+					out += (char)code[0];
+					out += (char)code[1];
+					out += "\";\r\n";
+					out += view;
+					if(_wfopen_s(&f, cfg.c_str(), L"wb") != 0 || !f)
+						return false;
+					ok = fwrite(out.data(), 1, out.size(), f) == out.size();
+				}
+			}
 		}
 	}
-	fclose(f);
+	if(f)
+		fclose(f);
 	return ok;
 }
 
@@ -1142,6 +1175,39 @@ static bool manager_copy_tree(const string &from, const string &to)
 			ok = false;
 	} while(::FindNextFileW(h, &fd));
 	::FindClose(h);
+	return ok;
+}
+
+static bool manager_create_start_shortcut()
+{
+	wchar_t programs[MAX_PATH]{};
+	if(FAILED(::SHGetFolderPathW(nullptr, CSIDL_PROGRAMS, nullptr, 0, programs)))
+		return false;
+	std::wstring lnk = programs;
+	lnk += L"\\Shell.lnk";
+	if(::GetFileAttributesW(lnk.c_str()) != INVALID_FILE_ATTRIBUTES)
+		return true; // already there
+	string exe = IO::Path::Module(nullptr).move();
+	::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	IShellLinkW *link = nullptr;
+	bool ok = false;
+	if(SUCCEEDED(::CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link)) && link)
+	{
+		string dir = IO::Path::Parent(exe);
+		if(SUCCEEDED(link->SetPath(exe.c_str())) &&
+		   SUCCEEDED(link->SetDescription(L"Shell - context menu manager")) &&
+		   SUCCEEDED(link->SetWorkingDirectory(dir.c_str())))
+		{
+			IPersistFile *file = nullptr;
+			if(SUCCEEDED(link->QueryInterface(IID_IPersistFile, (void**)&file)) && file)
+			{
+				ok = SUCCEEDED(file->Save(lnk.c_str(), TRUE));
+				file->Release();
+			}
+		}
+		link->Release();
+	}
+	::CoUninitialize();
 	return ok;
 }
 
@@ -1375,8 +1441,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 					break;
 				}
 				case ID_UPDATE:
-				{
-					std::wstring tag;
+				{					std::wstring tag;
 					if(!manager_latest_tag(tag))
 					{
 						::MessageBoxW(hWnd, L"Could not reach GitHub releases.\r\nCheck your connection and try again.", APP_NAME, MB_OK | MB_ICONWARNING);
@@ -1397,6 +1462,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 							Open(hWnd, L"https://github.com/arvaidasre/Shell/releases");
 						}
 					}
+					break;
+				}
+				case ID_STARTMENU:
+				{
+					if(manager_create_start_shortcut())
+						::MessageBoxW(hWnd, L"Start Menu shortcut is in place.", APP_NAME, MB_OK | MB_ICONINFORMATION);
+					else
+						::MessageBoxW(hWnd, L"Could not create the Start Menu shortcut.", APP_NAME, MB_OK | MB_ICONWARNING);
 					break;
 				}
 				case ID_RESTART:
@@ -1463,6 +1536,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                             break;
                         case 'P':
                             main_window->SendCommand(ID_UPDATE);
+                            break;
+                        case 'M':
+                            main_window->SendCommand(ID_STARTMENU);
                             break;
                     }
                 }
