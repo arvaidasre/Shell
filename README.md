@@ -75,6 +75,11 @@ no duplicates, type-to-search). Extra menus (Go to, Terminal,
 Development, File management) ship in `imports/` — add an
 `import 'imports/<name>.nss'` line to `shell.nss` to enable them.
 
+Menu language: set `$lang` at the top of `shell.nss` to `"en"`,
+`"lt"` or `"ru"` (English, Lietuvių, Русский). Want your language?
+Open an [issue](https://github.com/arvaidasre/Shell/issues) — help
+translating is welcome.
+
 ## Building from source
 
 Minimal toolchain (what the CI uses):

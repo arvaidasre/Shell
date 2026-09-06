@@ -35,6 +35,7 @@
 		<p>On Windows 11 <code>-treat</code> replaces the modern menu; omit it to keep the stock menu with Shell under “Show more options”. On Windows 10 use <code>shell -register -restart</code>.</p>
 		<p><i>Upgrading from the original Nilesoft build:</i> unregister it first (<code>shell -unregister -restart</code> from its folder), then register this build.</p>
 		<p><i>Per-user config (new in this fork):</i> copy your <code>shell.nss</code> to <code>%AppData%\Nilesoft\Shell\shell.nss</code> — it is used instead of the install-folder file, needs no admin rights to edit, and survives reinstalls. Delete it to restore the defaults.</p>
+		<p><i>Language:</i> set <code>$lang</code> at the top of <code>shell.nss</code> to <code>"en"</code>, <code>"lt"</code> or <code>"ru"</code>. Missing translations? Open an issue on GitHub — help is welcome.</p>
 	</div>
 	<hr>
 	<div id="community-uninstall">

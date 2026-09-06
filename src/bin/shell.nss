@@ -8,6 +8,17 @@ settings
 	tip.enabled=true
 }
 
+// ===== Language / Kalba / Язык =====
+// Choose the menu language: "en" (English), "lt" (Lietuvių), "ru" (Русский).
+// Can you help translate Shell into your language? Open an issue on GitHub.
+$lang = "en"
+
+$loc_path='imports\lang\'
+import lang loc_path + "en.nss"
+import lang if(path.exists(loc_path + $lang + ".nss"),
+               loc_path + $lang + ".nss",
+               loc_path + "en.nss")
+
 import 'imports/theme.nss'
 import 'imports/images.nss'
 
@@ -15,6 +26,9 @@ import 'imports/modify.nss'
 
 // Minimal mode - no extra menus, only the system Win7-style menu.
 // Search/filter works automatically - just start typing with the menu open.
+// Optional menus (Go to, Terminal, Development, File management) ship in
+// imports/ - add an import line below to enable them, e.g.:
+// import 'imports/goto.nss'
 
 // Taskbar kept so right-click on the taskbar keeps working
 import 'imports/taskbar.nss'
