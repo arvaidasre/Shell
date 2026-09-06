@@ -39,8 +39,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
     - name: Publish self-contained
-      run: dotnet publish src/manager/Shell.Manager/Shell.Manager.csproj -c Release -r ${{ matrix.rid }} --self-contained -o publish/${{ matrix.arch }}
+      # NOTE: must build with VS MSBuild, not `dotnet` CLI - only VS ships
+      # the Appx packaging tasks (RemovePayloadDuplicates) that WinUI needs.
+      run: msbuild src/manager/Shell.Manager/Shell.Manager.csproj /p:Configuration=Release /p:RuntimeIdentifier=${{ matrix.rid }} /p:SelfContained=true /t:Publish /p:PublishDir="$env:GITHUB_WORKSPACE/publish/${{ matrix.arch }}/"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
