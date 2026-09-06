@@ -1,75 +1,90 @@
-[![Ceasefire Now](https://badge.techforpalestine.org/default)](https://techforpalestine.org/learn-more)
+[![Build](https://github.com/arvaidasre/Shell/actions/workflows/build.yml/badge.svg)](https://github.com/arvaidasre/Shell/actions/workflows/build.yml)
 
-[![Build](../../actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
-[![Nightly](https://img.shields.io/badge/Nightly-nightly.link-purple)](https://nightly.link/moudey/Shell/workflows/build/main)
+# Shell
 
-# [Shell](https://nilesoft.org)
-Powerful manager for Windows File Explorer context menu.
-<br>
+Powerful manager for the Windows File Explorer context menu.
+
+> **Maintenance notice:** this repository is now community-maintained by
+> [@arvaidasre](https://github.com/arvaidasre). Work on the project continues —
+> bug fixes and improvements are in progress. The original project by Nilesoft
+> ([moudey/Shell](https://github.com/moudey/Shell), [nilesoft.org](https://nilesoft.org))
+> is credited below and in [LICENSE](LICENSE).
+>
+> **Issues and pull requests are welcome.** If something is broken, please
+> [open an issue](https://github.com/arvaidasre/Shell/issues) with your Windows
+> version/build, steps to reproduce, and expected behavior.
 
 <p align="center">
- <img src="https://www.nilesoft.org/images/logo-256.png">
- <br>
- <br>
+  <img src="https://www.nilesoft.org/images/logo-256.png" alt="Shell logo">
 </p>
 
-## Details
-<p>
-Shell is a context menu extender that lets you handpick the items to integrate into the Windows File Explorer context menu, create custom commands to access all your favorite web pages, files, and folders, and launch any application directly from the context menu.<br>
-It also provides you a convenient solution to modify or remove any context menu item added by the system or third-party software.
-</p>
+## About
 
-Features
-------------------
-* Lightweight, portable, and relatively easy to use.
-* Fully customize the appearance.
-* Adding new custom items such as (sub-menu, menu-items, and separator).
-* Modify or remove items that already exist.
-* Support all file system objects, including files, folders, desktop, and the taskbar.
-* Support expressions syntax. with built-in functions and predefined variables.
-* Support colors, glyphs, SVG, embedded icons, and image files such as .ico, .png or .bmp.
-* Support search and filter.
-* Support for complex nested menus.
-* Support multiple columns.
-* Quickly and easily configure file in plain text.
-* Minimal resource usage.
-* No limitations.
+Shell is a context menu extender that lets you handpick the items integrated
+into the Windows File Explorer context menu, create custom commands for your
+favorite web pages, files and folders, and launch any application directly
+from the context menu.
 
+It also lets you modify or remove context menu items added by the system or
+third-party software.
 
-Requirements
-------------------
-  * Microsoft Windows 7/8/10/11 
+## Features
 
+* Lightweight, portable, and relatively easy to use
+* Fully customizable appearance
+* Custom items: sub-menus, menu items, separators
+* Modify or remove existing items
+* Supports all file system objects: files, folders, desktop, taskbar
+* Expression syntax with built-in functions and predefined variables
+* Colors, glyphs, SVG, embedded icons, and image files (.ico, .png, .bmp)
+* Search and filter
+* Complex nested menus, multiple columns
+* Plain-text configuration file
+* Minimal resource usage
 
-Documentation
-------------------
-Browse the [online documentation here.](https://nilesoft.org/docs)
+## Requirements
 
-[<img src="https://devin.ai/assets/deepwiki-badge.png" alt="Ask DeepWiki.com" height="20"/>](https://deepwiki.com/moudey/Shell)
+* Microsoft Windows 7 / 8 / 10 / 11
 
-Download
-------------------
-Download the latest version:  
-https://nilesoft.org/download
+## Documentation
 
-Screenshots
-------------------
+* [Online documentation (nilesoft.org)](https://nilesoft.org/docs)
+* Local docs in [`docs/`](docs)
+
+## Building from source
+
+Minimal toolchain (what the CI uses):
+
+* Visual Studio 2022 Build Tools with:
+  * `MSVC v143 - VS 2022 C++ x64/x86 build tools`
+  * `Windows 11 SDK`
+  * `C++ 2022 Redistributable`
+  * `NuGet build tools`
+* Solution: [`src/Shell.sln`](src/Shell.sln) — `release` / `x64`, `x86`, `arm64`
+
+CI builds every push/PR to `main` — see
+[Actions](https://github.com/arvaidasre/Shell/actions).
+
+## Screenshots
+
 <p align="center">
 <img src="/screenshots/folder-back.png"><img src="/screenshots/file-manage.png"><br>
 <img src="/screenshots/view.png"><img src="/screenshots/edit.png"><br>
 <img src="/screenshots/terminal.png"><img src="/screenshots/taskbar.png"><br>
 <img src="/screenshots/goto2.png"><img src="/screenshots/gradient.png"><br>
 <img src="/screenshots/acrylic.png"><br>
-
-<br>
-<br>
 </p>
 
-Donate
-------------------
-If you really love Shell and would like to see it continue to improve.
+## Contributing
 
-[![Paypal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/nilesoft)
-[![BuyMeACoffee](https://img.shields.io/badge/Donate-BuyMeACoffee-yellow.svg)](https://www.buymeacoffee.com/moudey)
+1. Check [open issues](https://github.com/arvaidasre/Shell/issues) first —
+   yours may already be reported.
+2. Open a new issue with: Windows version/build, Shell version, repro steps,
+   expected vs. actual behavior (screenshots help).
+3. Pull requests are welcome — keep changes focused, one issue per PR.
 
+## Credits
 
+Original author: Nilesoft (Mahmoud Gomaa) — [moudey/Shell](https://github.com/moudey/Shell).
+This fork continues maintenance with respect for the original work, which
+remains licensed under MIT (see [LICENSE](LICENSE)).
