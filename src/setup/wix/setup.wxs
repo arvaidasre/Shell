@@ -53,8 +53,8 @@
 		<Property Id='MSIRESTARTMANAGERCONTROL' Value='Disable' />
 		<Property Id='DefaultUIFont' Value='WixUI_Font_Normal' />
 		<Property Id='ErrorDialog' Value='ErrorDlg' />
-		<Property Id='ARPURLINFOABOUT' Value='https://nilesoft.org/' />
-		<Property Id='ARPHELPLINK' Value='https://nilesoft.org/docs/' />
+		<Property Id='ARPURLINFOABOUT' Value='https://github.com/arvaidasre/Shell' />
+		<Property Id='ARPHELPLINK' Value='https://github.com/arvaidasre/Shell/issues' />
 		<Property Id='ARPNOMODIFY' Value='1' Secure='yes' />
 		<Property Id='ARPNOREPAIR' Value='1' Secure='yes' />
 		<Property Id='BURNMSIMODIFY' Value='0' Secure='yes' />
@@ -79,10 +79,27 @@
 						<File Id='en.nss' Source='$(var.bin)\imports\lang\en.nss' />
 						<File Id='ar.nss' Source='$(var.bin)\imports\lang\ar.nss' />
 						<File Id='de_DE.nss' Source='$(var.bin)\imports\lang\de-DE.nss' />
+						<File Id='es_ES.nss' Source='$(var.bin)\imports\lang\es-ES.nss' />
+						<File Id='it.nss' Source='$(var.bin)\imports\lang\it.nss' />
+						<File Id='ja.nss' Source='$(var.bin)\imports\lang\ja.nss' />
 						<File Id='ko.nss' Source='$(var.bin)\imports\lang\ko.nss' />
+						<File Id='lt.nss' Source='$(var.bin)\imports\lang\lt.nss' />
 						<File Id='no.nss' Source='$(var.bin)\imports\lang\no.nss' />
 						<File Id='pt_BR.nss' Source='$(var.bin)\imports\lang\pt-BR.nss' />
+						<File Id='ro.nss' Source='$(var.bin)\imports\lang\ro.nss' />
+						<File Id='ru.nss' Source='$(var.bin)\imports\lang\ru.nss' />
+						<File Id='sl.nss' Source='$(var.bin)\imports\lang\sl.nss' />
+						<File Id='tr.nss' Source='$(var.bin)\imports\lang\tr.nss' />
+						<File Id='ua.nss' Source='$(var.bin)\imports\lang\ua.nss' />
 						<File Id='zh_CN.nss' Source='$(var.bin)\imports\lang\zh-CN.nss' />
+						<File Id='zh_TW.nss' Source='$(var.bin)\imports\lang\zh-TW.nss' />
+					</Component>
+				</Directory>
+				<Directory Id='THEMES' Name='themes'>
+					<Component Id='THEMES' Guid='{B625B08C-9596-42EB-A6EC-B56B2770AFD7}' NeverOverwrite='yes'>
+						<File Id='mica.nss' Source='$(var.bin)\imports\themes\mica.nss' />
+						<File Id='oled.nss' Source='$(var.bin)\imports\themes\oled.nss' />
+						<File Id='light.nss' Source='$(var.bin)\imports\themes\light.nss' />
 					</Component>
 				</Directory>
 				</Directory>
@@ -123,6 +140,7 @@
 			<ComponentRef Id='CONFIG' />
 			<ComponentRef Id='IMPORTS' />
 			<ComponentRef Id='LANG' />
+			<ComponentRef Id='THEMES' />
 			<ComponentRef Id='CLEANUP' />
 			<ComponentRef Id='StartMenuShortcut' />
 			<ComponentRef Id='DisplayIcon' />

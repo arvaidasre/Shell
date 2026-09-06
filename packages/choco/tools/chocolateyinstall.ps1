@@ -1,13 +1,15 @@
 ﻿$ErrorActionPreference = 'Stop' # stop on all errors
-$url        = 'https://nilesoft.org/download/shell/1.9/setup.exe'
+# Community release assets. Update the version below with each release
+# and refresh the checksum (choco install --download-checksum behavior).
+$url        = 'https://github.com/arvaidasre/Shell/releases/download/v1.9.19/Shell-1.9.19-setup-x64.msi'
 $packageArgs = @{
   packageName   = $env:ChocolateyPackageName
-  fileType      = 'exe'
+  fileType      = 'msi'
   url           = $url
   softwareName  = 'Nilesoft Shell'
-  checksum      = '4df2b30fc6b9d6d7c95c7e5070fbeb305c7d1b30ef3c135bb9e2838c10114fb6'
+  checksum      = '9EB31DA31E70A7DE930528359134BDDC25463ECF2F85638950B0052FB93661C9'
   checksumType  = 'sha256'
-  silentArgs   = '/VERYSILENT /NORESTART' # Inno Setup
-  validExitCodes= @(0)
+  silentArgs   = '/qn /norestart'
+  validExitCodes= @(0, 1641, 3010)
 }
 Install-ChocolateyPackage @packageArgs

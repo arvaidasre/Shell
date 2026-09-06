@@ -1,0 +1,54 @@
+name: Bug report
+description: Something is broken in the community Shell build
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Fill in what you can — logs and exact versions
+        decide how fast this gets fixed.
+  - type: input
+    id: shell-version
+    attributes:
+      label: Shell version
+      description: From the release you installed (e.g. v1.9.19), plus x64/x86/arm64
+      placeholder: v1.9.19 x64
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version/build
+      description: Run `winver` (e.g. Windows 11 25H2, build 26200.5670)
+      placeholder: Windows 11 24H2, build 26100.4355
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, starting from a right-click. Include your shell.nss snippet if custom config is involved.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Event Viewer
+      description: |
+        If explorer crashed or restarted: paste the Application Error
+        (Event ID 1000) faulting module + offset from Event Viewer.
+        If relevant, attach shell.log from the install folder.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-checks
+      options:
+        - label: Reproduces with the default shell.nss (no custom config)
+        - label: Stock Explorer shows the correct behavior for the same files
+        - label: I unregistered the original Nilesoft build before installing this fork

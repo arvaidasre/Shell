@@ -15,7 +15,7 @@ Powerful manager for the Windows File Explorer context menu.
 > version/build, steps to reproduce, and expected behavior.
 
 <p align="center">
-  <img src="https://www.nilesoft.org/images/logo-256.png" alt="Shell logo">
+  <img src="https://cdn.jsdelivr.net/gh/arvaidasre/Shell@main/packages/assets/logo-256.png" alt="Shell logo">
 </p>
 
 ## About
@@ -48,8 +48,7 @@ third-party software.
 
 ## Documentation
 
-* [Online documentation (nilesoft.org)](https://nilesoft.org/docs)
-* Local docs in [`docs/`](docs)
+* Local docs in [`docs/`](docs) (the old online documentation may be unavailable)
 
 ## Install
 

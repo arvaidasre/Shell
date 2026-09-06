@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Help translate Shell
+    url: https://github.com/arvaidasre/Shell/issues/14
+    about: Add your language to the menu

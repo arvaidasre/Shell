@@ -6,12 +6,12 @@
     <title>Nilesoft Shell</title>
     <authors>Mahmoud Gomaa</authors>
     <owners>Mahmoud Gomaa</owners>
-    <projectUrl>https://nilesoft.org</projectUrl>
-    <iconUrl>https://cdn.jsdelivr.net/gh/moudey/Shell@main/packages/assets/logo-256.png</iconUrl>
-    <copyright>2023 Nilesoft Ltd.</copyright>
-    <licenseUrl>https://raw.githubusercontent.com/moudey/Shell/main/LICENSE</licenseUrl>
-    <packageSourceUrl>https://github.com/moudey/Shell/tree/main/packages/choco</packageSourceUrl>
-    <docsUrl>https://nilesoft.org/docs</docsUrl>
+    <projectUrl>https://github.com/arvaidasre/Shell</projectUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/arvaidasre/Shell@main/packages/assets/logo-256.png</iconUrl>
+    <copyright>2024 Nilesoft Ltd. (community-maintained fork)</copyright>
+    <licenseUrl>https://raw.githubusercontent.com/arvaidasre/Shell/main/LICENSE</licenseUrl>
+    <packageSourceUrl>https://github.com/arvaidasre/Shell/tree/main/packages/choco</packageSourceUrl>
+    <docsUrl>https://github.com/arvaidasre/Shell#readme</docsUrl>
     <tags>context-menu right-click file-explorer shell-extension</tags>
     <summary>Powerful context menu manager for Windows File Explorer.</summary>
     <description>Shell is a context menu extender that lets you handpick the items to integrate into Windows File Explorer context menu, create custom commands to access all your favorite web pages, files, and folders, and launch any application directly from the context menu. It also provides you a convenient solution to modify or remove any context menu item added by the system or third party software.</description>

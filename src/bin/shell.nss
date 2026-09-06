@@ -21,6 +21,8 @@ import lang if(path.exists(loc_path + $lang + ".nss"),
 
 import 'imports/theme.nss'
 import 'imports/images.nss'
+// Theme presets (mica, oled, light) live in imports/themes/ -
+// copy one over imports/theme.nss to use it.
 
 import 'imports/modify.nss'
 
