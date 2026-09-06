@@ -51,6 +51,25 @@ third-party software.
 * [Online documentation (nilesoft.org)](https://nilesoft.org/docs)
 * Local docs in [`docs/`](docs)
 
+## Install
+
+Download `Shell-1.9.19-portable-<arch>.zip` (or the `.msi`) from
+[Releases](https://github.com/arvaidasre/Shell/releases) — x64 for most
+PCs, arm64 for Snapdragon/ARM.
+
+Portable: extract, then in an elevated command prompt in that folder:
+
+    shell -register -treat -restart
+
+(`-treat` replaces the Win11 modern menu; omit it to keep the stock
+menu. On Win10 use `shell -register -restart`.)
+Unregister with `shell -unregister -restart`.
+
+* Upgrading from the original Nilesoft build: unregister it first.
+* New: a per-user config at `%AppData%\Nilesoft\Shell\shell.nss`
+  overrides the install-folder file — no admin rights needed, survives
+  reinstalls. Full steps in [`docs/installation.html`](docs/installation.html).
+
 ## Building from source
 
 Minimal toolchain (what the CI uses):

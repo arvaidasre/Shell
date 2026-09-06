@@ -6,6 +6,7 @@
 <br>
 <p>Shell can be installed in the following ways:</p>
 <ul>
+	<li><a href="#community">Community release (this fork)</a></li>
 	<li><a href="#installer">Installer</a></li>
 	<li><a href="#portable">Portable</a></li>
 	<li><a href="#winget">Windows Package Manager</a></li>
@@ -18,6 +19,34 @@
 	<li><a href="#keys">Keys to enable/disable Shell functionalities</a></li>
 </ul>
 <br>
+<div id="community">
+	<h5>Community release (this fork)</h5>
+	<p>Download <code>Shell-1.9.19-portable-&lt;arch&gt;.zip</code> or
+		<code>Shell-1.9.19-setup-&lt;arch&gt;.msi</code> from
+		<a href="https://github.com/arvaidasre/Shell/releases">GitHub Releases</a>
+		(x64 for most PCs, arm64 for Snapdragon/ARM).</p>
+	<div id="community-install">
+		<h5>Install (portable)</h5>
+		<p>Extract the zip, open an <strong>elevated command prompt</strong> in that folder, and run</p>
+		<div class="console">
+			<div class="console-title">Administrator: Command Prompt</div>
+			<div class="console-body">shell -register -treat -restart</div>
+		</div>
+		<p>On Windows 11 <code>-treat</code> replaces the modern menu; omit it to keep the stock menu with Shell under “Show more options”. On Windows 10 use <code>shell -register -restart</code>.</p>
+		<p><i>Upgrading from the original Nilesoft build:</i> unregister it first (<code>shell -unregister -restart</code> from its folder), then register this build.</p>
+		<p><i>Per-user config (new in this fork):</i> copy your <code>shell.nss</code> to <code>%AppData%\Nilesoft\Shell\shell.nss</code> — it is used instead of the install-folder file, needs no admin rights to edit, and survives reinstalls. Delete it to restore the defaults.</p>
+	</div>
+	<hr>
+	<div id="community-uninstall">
+		<h5>Uninstall</h5>
+		<p>From the extracted folder, run elevated</p>
+		<div class="console">
+			<div class="console-title">Administrator: Command Prompt</div>
+			<div class="console-body">shell -unregister -restart</div>
+		</div>
+	</div>
+</div>
+<br/>
 <div id="installer">
 	<h5>Installer version</h5>
 	<div id="installer-install">
