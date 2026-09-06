@@ -15,7 +15,7 @@ theme
 	item
 	{
 		opacity = 50
-		radius = 2
+		radius = 8
 		prefix = 0
 		padding = [10, 4]
 		margin = [4, 2]
@@ -35,7 +35,7 @@ theme
 		size = 1
 		color = #000
 		opacity = theme.islight ? 12 : 25
-		radius = default
+		radius = 8
 		padding = [0, 2]
 	}
 

@@ -86,6 +86,7 @@ Logger *_log;
 HANDLE _fonthandle = nullptr;
 HFONT _hfont_icon = nullptr;
 HFONT _hfont_icon2 = nullptr;
+HFONT g_font_ui = nullptr;
 UINT _dpi = 96;
 RECT rc_window{};
 RECT rc_reg{};
@@ -766,6 +767,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 		if(_hfont_icon)
 			::DeleteObject(_hfont_icon);
 
+		if(g_font_ui)
+			::DeleteObject(g_font_ui);
+
 		if(_fonthandle)
 			::RemoveFontMemResourceEx(_fonthandle);
 		
@@ -1218,7 +1222,33 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     {
 		case WM_CREATE:
 		{
-			::SendMessageW(hWnd, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), TRUE);
+			if(!g_font_ui)
+			{
+				// Segoe UI Variable (Win11); GDI falls back automatically on older Windows.
+				LOGFONTW lf{};
+				lf.lfHeight = -dpi(12);
+				lf.lfWeight = FW_NORMAL;
+				lf.lfCharSet = DEFAULT_CHARSET;
+				lf.lfQuality = CLEARTYPE_NATURAL_QUALITY;
+				wcsncpy_s(lf.lfFaceName, LF_FACESIZE, L"Segoe UI Variable Text", _TRUNCATE);
+				g_font_ui = ::CreateFontIndirectW(&lf);
+			}
+			::SendMessageW(hWnd, WM_SETFONT, (WPARAM)(g_font_ui ? g_font_ui : ::GetStockObject(DEFAULT_GUI_FONT)), TRUE);
+			// Windows 11 style: rounded corners, Mica-capable backdrop, dark mode follows the system.
+			// Numeric constants keep this compiling on older SDKs; unknown attributes are ignored at runtime.
+			{
+				int corner = 2; // DWMWCP_ROUND
+				::DwmSetWindowAttribute(hWnd, (DWMWINDOWATTRIBUTE)33, &corner, sizeof(corner)); // DWMWA_WINDOW_CORNER_PREFERENCE
+				int backdrop = 2; // DWMSBT_MAINWINDOW (Mica)
+				::DwmSetWindowAttribute(hWnd, (DWMWINDOWATTRIBUTE)38, &backdrop, sizeof(backdrop)); // DWMWA_SYSTEMBACKDROP_TYPE
+				BOOL dark = FALSE;
+				if(auto key = Registry::CurrentUser.OpenSubKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", true, false))
+				{
+					dark = !key.GetInt(L"AppsUseLightTheme", 1);
+					key.Close();
+				}
+				::DwmSetWindowAttribute(hWnd, (DWMWINDOWATTRIBUTE)20, &dark, sizeof(dark)); // DWMWA_USE_IMMERSIVE_DARK_MODE
+			}
 			break;
 		}
         case WM_ACTIVATE:// Extend the frame into the client area.
