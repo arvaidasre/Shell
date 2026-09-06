@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
 PackageIdentifier: ArvaidasRe.Shell
-PackageVersion: 1.9.19
+PackageVersion: 1.9.21
 MinimumOSVersion: 10.0.0.0
 InstallerType: msi
 Scope: machine
@@ -9,16 +9,16 @@ InstallModes:
 - silent
 - silentWithProgress
 UpgradeBehavior: install
-ProductCode: '{7BCA6512-254B-456F-8F08-AAD7508BEE77}'
+ProductCode: '{041D0DCE-0A7A-4A36-B187-4A78E870EAF9}'
 Installers:
 - Architecture: x64
-  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.19/Shell-1.9.19-setup-x64.msi
-  InstallerSha256: B7A53A36C40034856EC1F0F1CA0AB39B8DAAAB85B4B368EE57C22B6314D44826
+  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.21/Shell-1.9.21-setup-x64.msi
+  InstallerSha256: 5EFF5C4DFA44C0F083E944868F0B5512C42947211BBA1FD0F6B57ED70EC64B23
 - Architecture: x86
-  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.19/Shell-1.9.19-setup-x86.msi
-  InstallerSha256: 91AC71590D665908B258E4F51522FF2B6192D325881AAC5538FEA8A8195ECC03
+  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.21/Shell-1.9.21-setup-x86.msi
+  InstallerSha256: BF854C9187CDA1B1A12453D5E779558409BAE8FF29383D6884D341E76218B352
 - Architecture: arm64
-  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.19/Shell-1.9.19-setup-arm64.msi
-  InstallerSha256: 31E74B72E487E503A3A79167EC16D8F2D208CF9845DEE57D424DD9834B361BD3
+  InstallerUrl: https://github.com/arvaidasre/Shell/releases/download/v1.9.21/Shell-1.9.21-setup-arm64.msi
+  InstallerSha256: BC8F02315F02235ACB78C4C6CDEC5E86744BDA9822F16C4D7A704CC09731464E
 ManifestType: installer
 ManifestVersion: 1.6.0

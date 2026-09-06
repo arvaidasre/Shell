@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
 PackageIdentifier: ArvaidasRe.Shell
-PackageVersion: 1.9.19
+PackageVersion: 1.9.21
 PackageLocale: en-US
 Publisher: arvaidasre
 PublisherUrl: https://github.com/arvaidasre/Shell
