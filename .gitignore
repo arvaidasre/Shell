@@ -38,5 +38,8 @@ src/exe/obj/
 src/dll/obj/
 src/setup/ca/obj/
 src/setup/wix/obj/
+src/manager/**/bin/
+src/manager/**/obj/
+src/manager/.vs/
 src/packages/
 #src/bin/*.exe
