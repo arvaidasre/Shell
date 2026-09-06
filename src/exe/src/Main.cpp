@@ -1044,7 +1044,10 @@ static string manager_config_lang(const string &cfg)
 			std::vector<char> buf((size_t)size + 1, 0);
 			if(fread(buf.data(), 1, (size_t)size, f) == (size_t)size)
 			{
-				const char *p = strstr(buf.data(), "$lang");
+				// $ui_lang (current); $lang kept for configs written by older builds.
+				const char *p = strstr(buf.data(), "$ui_lang");
+				if(!p)
+					p = strstr(buf.data(), "$lang");
 				if(p)
 				{
 					p = strchr(p, '"');
@@ -1078,7 +1081,9 @@ static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
 		if(fread(buf.data(), 1, (size_t)size, f) == (size_t)size)
 		{
 			std::string view(buf.data(), (size_t)size);
-			size_t pos = view.find("$lang");
+			size_t pos = view.find("$ui_lang");
+			if(pos == std::string::npos)
+				pos = view.find("$lang");
 			if(pos != std::string::npos)
 			{
 				size_t q1 = view.find('"', pos);
@@ -1105,7 +1110,7 @@ static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
 				{
 					fclose(f);
 					f = nullptr;
-					std::string out = "$lang = \"";
+					std::string out = "$ui_lang = \"";
 					out += (char)code[0];
 					out += (char)code[1];
 					out += "\";\r\n";
@@ -1417,12 +1422,13 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 						manager_refresh_lang_button();
 						string msg = L"Menu language: ";
 						msg += manager_lang_name(next);
-						msg += L".\nTakes effect when the menu opens next.";
-						::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
+						msg += L".\nRestart Explorer to apply it?";
+						if(::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_YESNO | MB_ICONQUESTION) == IDYES)
+							Windows::Explorer::Restart();
 					}
 					else
 					{
-						::MessageBoxW(hWnd, L"Could not update $lang in the config file.\r\nOpen it manually and set $lang to \"en\", \"lt\" or \"ru\".", APP_NAME, MB_OK | MB_ICONWARNING);
+						::MessageBoxW(hWnd, L"Could not update the language in the config file.\r\nOpen it manually and set $ui_lang to \"en\", \"lt\" or \"ru\".", APP_NAME, MB_OK | MB_ICONWARNING);
 					}
 					break;
 				}

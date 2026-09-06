@@ -11,12 +11,12 @@ settings
 // ===== Language / Kalba / Язык =====
 // Choose the menu language: "en" (English), "lt" (Lietuvių), "ru" (Русский).
 // Can you help translate Shell into your language? Open an issue on GitHub.
-$lang = "en"
+$ui_lang = "en"
 
 $loc_path='imports\lang\'
 import lang loc_path + "en.nss"
-import lang if(path.exists(loc_path + $lang + ".nss"),
-               loc_path + $lang + ".nss",
+import lang if(path.exists(loc_path + ui_lang + ".nss"),
+               loc_path + ui_lang + ".nss",
                loc_path + "en.nss")
 
 import 'imports/theme.nss'
