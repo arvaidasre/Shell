@@ -2855,11 +2855,12 @@ namespace Nilesoft
 							}
 							else
 							{
-								// Standard theme color detection for non-Canary builds
-								get_clr(nor, MENU_POPUPITEM, MPI_NORMAL, TMT_TEXTCOLOR);
-								get_clr(sel, MENU_POPUPITEM, MPI_HOT, TMT_TEXTCOLOR);
-								get_clr(dis, MENU_POPUPITEM, MPI_DISABLED, TMT_TEXTCOLOR);
-								get_clr(dis_sel, MENU_POPUPITEM, MPI_DISABLEDHOT, TMT_TEXTCOLOR);
+								// Standard theme color detection with system-color fallbacks
+							// (newer stable builds need them too, not just Canary/Dev)
+								if(!get_clr(nor, MENU_POPUPITEM, MPI_NORMAL, TMT_TEXTCOLOR)) nor.from(::GetSysColor(COLOR_MENUTEXT), 100);
+								if(!get_clr(sel, MENU_POPUPITEM, MPI_HOT, TMT_TEXTCOLOR)) sel.from(::GetSysColor(COLOR_HIGHLIGHTTEXT), 100);
+								if(!get_clr(dis, MENU_POPUPITEM, MPI_DISABLED, TMT_TEXTCOLOR)) dis.from(::GetSysColor(COLOR_GRAYTEXT), 100);
+								if(!get_clr(dis_sel, MENU_POPUPITEM, MPI_DISABLEDHOT, TMT_TEXTCOLOR)) dis_sel.from(::GetSysColor(COLOR_GRAYTEXT), 100);
 							}
 
 							_theme.text.color = { nor, sel, dis, dis_sel };
@@ -2900,14 +2901,14 @@ namespace Nilesoft
 							}
 							else
 							{
-								// Standard background color detection for non-Canary builds
+								// Standard background color detection with system-color fallbacks
 								if(!get_clr(_theme.background.color, MENU_POPUPBACKGROUND, MPI_NORMAL, TMT_FILLCOLOR))
-									get_bk_clr(_theme.background.color, MENU_POPUPITEM, MPI_NORMAL);
+									if(!get_bk_clr(_theme.background.color, MENU_POPUPITEM, MPI_NORMAL)) _theme.background.color.from(::GetSysColor(COLOR_MENU), 100);
 
-								get_bk_clr(_theme.back.color.sel, MENU_POPUPITEM, MPI_HOT);
-								get_bk_clr(_theme.back.color.nor_dis, MENU_POPUPITEM, MPI_DISABLED);
-								get_bk_clr(_theme.back.color.sel_dis, MENU_POPUPITEM, MPI_DISABLEDHOT);
-								get_bk_clr(_theme.separator.color, MENU_POPUPSEPARATOR, 0, -1, -1, 3);
+								if(!get_bk_clr(_theme.back.color.sel, MENU_POPUPITEM, MPI_HOT)) _theme.back.color.sel.from(::GetSysColor(COLOR_HIGHLIGHT), 100);
+								if(!get_bk_clr(_theme.back.color.nor_dis, MENU_POPUPITEM, MPI_DISABLED)) _theme.back.color.nor_dis.from(::GetSysColor(COLOR_MENU), 100);
+								if(!get_bk_clr(_theme.back.color.sel_dis, MENU_POPUPITEM, MPI_DISABLEDHOT)) _theme.back.color.sel_dis.from(::GetSysColor(COLOR_BTNFACE), 100);
+								if(!get_bk_clr(_theme.separator.color, MENU_POPUPSEPARATOR, 0, -1, -1, 3)) _theme.separator.color.from(::GetSysColor(COLOR_GRAYTEXT), 100);
 							}
 
 							_theme.border.color = _theme.separator.color;// getbkclr(MENU_POPUPBORDERS, 0, 0, 4, 9);
