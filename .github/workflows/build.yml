@@ -25,7 +25,7 @@ jobs:
       BUILD_CONFIGURATION: ${{matrix.configuration}}
       BUILD_PLATFORM: ${{matrix.platform}}
       BIN_PATH: D:\a\Shell\Shell\src\bin
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v4
