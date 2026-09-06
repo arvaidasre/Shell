@@ -337,7 +337,10 @@ bool Registration(REGOP reg)
 				}
 
 				// is windows 11 or later
-				if(ver->IsWindows11OrGreater() && reg.TREAT)
+				// Always remove TreatAs on unregister, even without -treat:
+				// a stale TreatAs pointing at our CLSID breaks the modern
+				// menu after uninstall.
+				if(ver->IsWindows11OrGreater())
 					disable_modern(false);
 
 				msg = string::Extract(IDS_UNREGISTER_SUCCESS).move();
