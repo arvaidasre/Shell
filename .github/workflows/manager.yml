@@ -50,6 +50,18 @@ jobs:
       # the Appx packaging tasks (RemovePayloadDuplicates) that WinUI needs.
       run: msbuild src/manager/Shell.Manager/Shell.Manager.csproj /p:Configuration=Release /p:RuntimeIdentifier=${{ matrix.rid }} /p:SelfContained=true /t:Publish /p:PublishDir="$env:GITHUB_WORKSPACE/publish/${{ matrix.arch }}/"
 
+    - name: Copy app XBF/PRI into publish dir
+      # msbuild /t:Publish leaves App.xbf/MainWindow.xbf/Shell.Manager.pri
+      # in bin/ - without them the app crashes at startup (E_FAIL).
+      shell: pwsh
+      run: |
+        $bin = "src/manager/Shell.Manager/bin/Release/net8.0-windows10.0.22621.0/${{ matrix.rid }}"
+        $pub = "$env:GITHUB_WORKSPACE/publish/${{ matrix.arch }}"
+        Get-ChildItem -LiteralPath $bin -File -Include *.xbf, *.pri |
+          Copy-Item -Destination $pub -Force
+        Get-ChildItem -LiteralPath $pub -File -Include *.xbf, *.pri |
+          Select-Object Name
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
