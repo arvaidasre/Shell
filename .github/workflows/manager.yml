@@ -1,0 +1,51 @@
+name: Manager (WinUI 3)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "src/manager/**"
+      - ".github/workflows/manager.yml"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "src/manager/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: [x64, x86, arm64]
+        include:
+          - arch: x64
+            rid: win-x64
+          - arch: x86
+            rid: win-x86
+          - arch: arm64
+            rid: win-arm64
+      fail-fast: false
+
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Publish self-contained
+      run: dotnet publish src/manager/Shell.Manager/Shell.Manager.csproj -c Release -r ${{ matrix.rid }} --self-contained -o publish/${{ matrix.arch }}
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: manager-${{ matrix.arch }}
+        path: publish/${{ matrix.arch }}/**
+        retention-days: 7
+        compression-level: 6

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "dgSpecHash": "c+NArbqXPic=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Arvaidas\\Documents\\GitHub\\Shell\\src\\manager\\Shell.Manager\\Shell.Manager.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.web.webview2\\1.0.2651.64\\microsoft.web.webview2.1.0.2651.64.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windows.sdk.buildtools\\10.0.22621.756\\microsoft.windows.sdk.buildtools.10.0.22621.756.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windowsappsdk\\1.6.250205002\\microsoft.windowsappsdk.1.6.250205002.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.30\\microsoft.netcore.app.runtime.win-x64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\8.0.30\\microsoft.netcore.app.runtime.win-x86.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.netcore.app.runtime.win-arm64\\8.0.30\\microsoft.netcore.app.runtime.win-arm64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.30\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\8.0.30\\microsoft.windowsdesktop.app.runtime.win-x86.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-arm64\\8.0.30\\microsoft.windowsdesktop.app.runtime.win-arm64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.30\\microsoft.aspnetcore.app.runtime.win-x64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\8.0.30\\microsoft.aspnetcore.app.runtime.win-x86.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-arm64\\8.0.30\\microsoft.aspnetcore.app.runtime.win-arm64.8.0.30.nupkg.sha512",
+    "C:\\Users\\Arvaidas\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22621.56\\microsoft.windows.sdk.net.ref.10.0.22621.56.nupkg.sha512"
+  ],
+  "logs": []
+}
