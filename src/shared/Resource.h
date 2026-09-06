@@ -36,9 +36,9 @@ namespace Nilesoft
 #define	APP_VERSION				L"1.9.19"
 //#define APP_VERSION_FULL		L"1.9 build 19"
 
-constexpr auto APP_EMAIL		= L"support@nilesoft.org";
-constexpr auto APP_WEBSITE		= L"www.nilesoft.org";
-constexpr auto APP_WEBSITELINK	= L"https://nilesoft.org";
+constexpr auto APP_EMAIL		= L"github.com/arvaidasre/Shell/issues";
+constexpr auto APP_WEBSITE		= L"github.com/arvaidasre/Shell";
+constexpr auto APP_WEBSITELINK	= L"https://github.com/arvaidasre/Shell";
 
 #ifdef _WINDLL
 	#define APP_FILENAME		APP_FILENAME_TITLE L".dll"

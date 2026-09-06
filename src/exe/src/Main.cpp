@@ -9,6 +9,13 @@
 #include "Control.h"
 #include <shlwapi.h>
 #include <shlobj.h>
+#include <winhttp.h>
+#include <cctype>
+#include <cstdio>
+#include <cstring>
+#include <cwchar>
+#include <string>
+#include <vector>
 #include <Library/PlutoVGWrap.h>
 #include <RegistryConfig.h>
 
@@ -17,6 +24,7 @@
 #pragma comment(lib, "Comctl32")
 #pragma comment(lib, "dwmapi")
 #pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "winhttp.lib")
 
 #if defined(_M_ARM64)
 	#pragma comment(lib, "plutosvg-arm64.lib")
@@ -46,10 +54,13 @@ BOOL CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 #define ID_UNREG 0x004
 #define ID_RESTART 0x005
 #define ID_WEB 0x006
-#define ID_DONATE 0x007
 #define ID_EMAIL 0x008
 #define ID_GITHUB 0x009
 #define ID_DOCS 0x00d
+#define ID_LANG 0x010
+#define ID_OPENCFG 0x011
+#define ID_BACKUPCFG 0x012
+#define ID_UPDATE 0x013
 
 /////////
 #define SetWindowStyle(hwnd, style)	 ::SetWindowLongW((hwnd), GWL_STYLE, (style))
@@ -642,7 +653,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
         ::GetClientRect(::GetDesktopWindow(), &rc_screen);
 
         rc_window.right = dpi(430);
-        rc_window.bottom = dpi(220);
+        rc_window.bottom = dpi(352);
 
         rc_window.left = (rc_screen.right - rc_window.right) / 2;
         rc_window.top = (rc_screen.bottom - rc_window.bottom) / 2;
@@ -725,14 +736,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 
 		//tl += (dpi(50) - btn_h) + btn_h + dpi(12);
 		tl += btn_h + offset_2;
-        auto btn_donate = new UI::Button(L"\uE1A8", { tl, tt, btn_h, btn_h }, ID_DONATE, main_window, BS_OWNERDRAW, _hfont_icon, L"Donate Ctrl+D");
+
+		auto btn_top2 = tt + btn_h + dpi(6);
+		auto btn_left = rc_reg.left;
+		g_lang_button = new UI::Button(L"Language\tCtrl+L", { btn_left, btn_top2, btn_w, btn_h }, ID_LANG, main_window, BS_OWNERDRAW);
+		auto btn_opencfg = new UI::Button(L"Open config folder\tCtrl+O", { btn_left, btn_top2 + btn_h + offset_2, btn_w, btn_h }, ID_OPENCFG, main_window, BS_OWNERDRAW);
+		auto btn_backup = new UI::Button(L"Backup config\tCtrl+B", { btn_left, btn_top2 + (btn_h + offset_2) * 2, btn_w, btn_h }, ID_BACKUPCFG, main_window, BS_OWNERDRAW);
+		auto btn_update = new UI::Button(L"Check for updates\tCtrl+P", { btn_left, btn_top2 + (btn_h + offset_2) * 3, btn_w, btn_h }, ID_UPDATE, main_window, BS_OWNERDRAW);
+		manager_refresh_lang_button();
 
 
-        main_window->SetColor({ btn_reg, btn_unreg,btn_restart,btn_donate,btn_web,btn_email,btn_bug }, 
+        main_window->SetColor({ btn_reg, btn_unreg,btn_restart,btn_web,btn_email,btn_bug,g_lang_button,btn_opencfg,btn_backup,btn_update }, 
 							  m_theme.text.nor, m_theme.back.nor, m_theme.text.sel, m_theme.back.sel);//0xeeeee0
         main_window->SetColor({ btn_close }, 0xFFFFFF, m_theme.back.nor, m_theme.text.nor, 0x2311E8);//E81123
 
 		btn_reg->OnDraw = btn_unreg->OnDraw = btn_restart->OnDraw = btn_on_paint;
+		g_lang_button->OnDraw = btn_opencfg->OnDraw = btn_backup->OnDraw = btn_update->OnDraw = btn_on_paint;
 
         auto ret = app.Run(main_window);
 
@@ -804,7 +823,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPWSTR,
 
 		if(_check)
 		{
-			//check();
+			manager_doctor();
 			return 0;
 		}
 
@@ -978,6 +997,217 @@ void Open(HWND hWnd, const wchar_t* cmd)
 	::ShellExecuteW(hWnd, L"open", cmd, nullptr, nullptr, SW_NORMAL);
 }
 
+// ---- community fork: effective config + language + update helpers ----
+static UI::Button *g_lang_button = nullptr;
+
+static string manager_effective_config()
+{
+	// Mirrors the dll resolution order: registry override, %AppData%, install dir.
+	// The returned path is also the default write target (always writable).
+	string cfg;
+	if(RegistryConfig::get(nullptr, L"config", cfg) && !cfg.empty() && IO::Path::IsFileExists(cfg))
+		return cfg.move();
+	string appdata = IO::Path::Join(IO::Path::GetKnownFolder(FOLDERID_RoamingAppData), L"\\Nilesoft\\Shell\\shell.nss").move();
+	if(!appdata.empty() && IO::Path::IsFileExists(appdata))
+		return appdata.move();
+	string exe = IO::Path::Module(nullptr).move();
+	string local = IO::Path::Combine(IO::Path::Parent(exe), L"shell.nss").move();
+	if(IO::Path::IsFileExists(local))
+		return local.move();
+	return appdata.move();
+}
+
+static string manager_config_lang(const string &cfg)
+{
+	string lang;
+	FILE *f = nullptr;
+	if(_wfopen_s(&f, cfg.c_str(), L"rb") == 0 && f)
+	{
+		fseek(f, 0, SEEK_END);
+		long size = ftell(f);
+		fseek(f, 0, SEEK_SET);
+		if(size > 0 && size < 1024 * 1024)
+		{
+			std::vector<char> buf((size_t)size + 1, 0);
+			if(fread(buf.data(), 1, (size_t)size, f) == (size_t)size)
+			{
+				const char *p = strstr(buf.data(), "$lang");
+				if(p)
+				{
+					p = strchr(p, '"');
+					if(p && isalpha((unsigned char)p[1]) && isalpha((unsigned char)p[2]) && p[3] == '"')
+					{
+						wchar_t code[3] = { (wchar_t)p[1], (wchar_t)p[2], 0 };
+						lang = code;
+					}
+				}
+			}
+		}
+		fclose(f);
+	}
+	return lang.move();
+}
+
+static bool manager_config_set_lang(const string &cfg, const wchar_t *code)
+{
+	// Same-length in-place swap of the 2-letter code: encoding-safe.
+	FILE *f = nullptr;
+	if(_wfopen_s(&f, cfg.c_str(), L"r+b") != 0 || !f)
+		return false;
+	bool ok = false;
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	if(size > 0 && size < 1024 * 1024)
+	{
+		std::vector<char> buf((size_t)size);
+		if(fread(buf.data(), 1, (size_t)size, f) == (size_t)size)
+		{
+			std::string view(buf.data(), (size_t)size);
+			size_t pos = view.find("$lang");
+			if(pos != std::string::npos)
+			{
+				size_t q1 = view.find('"', pos);
+				if(q1 != std::string::npos && q1 + 3 < view.size() && view[q1 + 3] == '"' &&
+				   isalpha((unsigned char)view[q1 + 1]) && isalpha((unsigned char)view[q1 + 2]))
+				{
+					char narrow[3] = { (char)code[0], (char)code[1], 0 };
+					fseek(f, (long)q1 + 1, SEEK_SET);
+					ok = fwrite(narrow, 1, 2, f) == 2;
+				}
+			}
+		}
+	}
+	fclose(f);
+	return ok;
+}
+
+static const wchar_t *manager_lang_name(const string &code)
+{
+	if(code.equals(L"lt"))
+		return L"Lietuvių";
+	if(code.equals(L"ru"))
+		return L"Русский";
+	return L"English";
+}
+
+static const wchar_t *manager_lang_next(const string &code)
+{
+	if(code.equals(L"en"))
+		return L"lt";
+	if(code.equals(L"lt"))
+		return L"ru";
+	return L"en";
+}
+
+static void manager_refresh_lang_button()
+{
+	if(!g_lang_button)
+		return;
+	string label;
+	label.format(L"Language: %s\tCtrl+L", manager_lang_name(manager_config_lang(manager_effective_config())));
+	g_lang_button->Text = label.move();
+	::InvalidateRect(g_lang_button->Handle, nullptr, TRUE);
+}
+
+static bool manager_copy_tree(const string &from, const string &to)
+{
+	string pattern = from + L"\\*";
+	WIN32_FIND_DATAW fd{};
+	HANDLE h = ::FindFirstFileW(pattern.c_str(), &fd);
+	if(h == INVALID_HANDLE_VALUE)
+		return false;
+	::CreateDirectoryW(to.c_str(), nullptr);
+	bool ok = true;
+	do
+	{
+		if(wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
+			continue;
+		string src = from + L"\\" + fd.cFileName;
+		string dst = to + L"\\" + fd.cFileName;
+		if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if(!manager_copy_tree(src, dst))
+				ok = false;
+		}
+		else if(!IO::File::Copy(src.c_str(), dst.c_str()))
+			ok = false;
+	} while(::FindNextFileW(h, &fd));
+	::FindClose(h);
+	return ok;
+}
+
+static bool manager_latest_tag(std::wstring &tag)
+{
+	bool ok = false;
+	HINTERNET hSession = ::WinHttpOpen(L"ShellUpdateCheck/1.0",
+		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+	if(!hSession)
+		return false;
+	HINTERNET hConnect = ::WinHttpConnect(hSession, L"api.github.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
+	if(hConnect)
+	{
+		HINTERNET hRequest = ::WinHttpOpenRequest(hConnect, L"GET",
+			L"/repos/arvaidasre/Shell/releases/latest",
+			nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+		if(hRequest)
+		{
+			if(::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+				WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
+			   ::WinHttpReceiveResponse(hRequest, nullptr))
+			{
+				std::string body;
+				char chunk[4096];
+				DWORD read = 0;
+				while(::WinHttpReadData(hRequest, chunk, sizeof(chunk), &read) && read > 0)
+					body.append(chunk, read);
+				const char *key = "\"tag_name\":\"";
+				size_t pos = body.find(key);
+				if(pos != std::string::npos)
+				{
+					pos += strlen(key);
+					size_t end = body.find('"', pos);
+					if(end != std::string::npos && end > pos && end - pos < 32)
+					{
+						tag.assign(body.begin() + pos, body.begin() + end);
+						ok = true;
+					}
+				}
+			}
+			::WinHttpCloseHandle(hRequest);
+		}
+		::WinHttpCloseHandle(hConnect);
+	}
+	::WinHttpCloseHandle(hSession);
+	return ok;
+}
+
+static void manager_doctor()
+{
+	string dll = IO::Path::Combine(IO::Path::Parent(IO::Path::Module(nullptr)), dll_name).move();
+	string cfg = manager_effective_config();
+	string treat = L"no";
+	{
+		string k;
+		k.format(L"CLSID\\%s\\TreatAs", string::ToString(IID_FileExplorerContextMenu, 2).c_str());
+		if(Registry::Exists(HKEY_CLASSES_ROOT, k.c_str(), 0))
+			treat = L"yes";
+	}
+	string report, line;
+	report.format(L"Shell %s (%s)\r\n", APP_VERSION, APP_PROCESS);
+	line.format(L"DLL: %s (%s)\r\n", dll.c_str(), IO::Path::IsFileExists(dll) ? L"found" : L"MISSING");
+	report += line;
+	line.format(L"Registered: %s\r\n", RegistryConfig::IsRegistered() ? L"yes" : L"no");
+	report += line;
+	line.format(L"Win11 modern takeover (TreatAs): %s\r\n", treat.c_str());
+	report += line;
+	line.format(L"Config: %s (%s)\r\n", cfg.c_str(), IO::Path::IsFileExists(cfg) ? L"found" : L"MISSING");
+	report += line;
+	line.format(L"Menu language: %s", manager_lang_name(manager_config_lang(cfg)));
+	report += line;
+	::MessageBoxW(nullptr, report.c_str(), L"Shell check", MB_OK | MB_ICONINFORMATION);
+}
+
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch(message)
@@ -1054,15 +1284,87 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                 case ID_WEB:
 					Open(hWnd, APP_WEBSITE);
                     break;
-                case ID_DONATE:
-					Open(hWnd, L"https://nilesoft.org/donate");
-                    break;
                 case ID_EMAIL:
-					Open(hWnd, L"mailto:support@nilesoft.org");
+					Open(hWnd, L"https://github.com/arvaidasre/Shell/issues");
                     break;
                 case ID_GITHUB:
-					Open(hWnd, L"https://github.com/moudey/shell");
+					Open(hWnd, L"https://github.com/arvaidasre/Shell");
                     break;
+				case ID_LANG:
+				{
+					string cfg = manager_effective_config();
+					string cur = manager_config_lang(cfg);
+					if(cur.empty())
+						cur = L"en";
+					const wchar_t *next = manager_lang_next(cur);
+					if(manager_config_set_lang(cfg, next))
+					{
+						manager_refresh_lang_button();
+						string msg;
+						msg.format(L"Menu language: %s.\nTakes effect when the menu opens next.", manager_lang_name(next));
+						::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
+					}
+					else
+					{
+						::MessageBoxW(hWnd, L"Could not update $lang in the config file.\r\nOpen it manually and set $lang to \"en\", \"lt\" or \"ru\".", APP_NAME, MB_OK | MB_ICONWARNING);
+					}
+					break;
+				}
+				case ID_OPENCFG:
+				{
+					string cfg = manager_effective_config();
+					string dir = IO::Path::Parent(cfg);
+					Open(hWnd, dir.c_str());
+					break;
+				}
+				case ID_BACKUPCFG:
+				{
+					string cfg = manager_effective_config();
+					string dir = IO::Path::Parent(cfg);
+					string parent = IO::Path::Parent(dir);
+					SYSTEMTIME st{};
+					::GetLocalTime(&st);
+					string bak;
+					bak.format(L"%s\\config-backup-%04d%02d%02d-%02d%02d", parent.c_str(),
+						st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+					bool ok = manager_copy_tree(dir, bak);
+					if(ok)
+					{
+						string msg;
+						msg.format(L"Config backed up to:\n%s", bak.c_str());
+						::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
+					}
+					else
+					{
+						::MessageBoxW(hWnd, L"Backup failed. Is the config folder writable?", APP_NAME, MB_OK | MB_ICONWARNING);
+					}
+					break;
+				}
+				case ID_UPDATE:
+				{
+					std::wstring tag;
+					if(!manager_latest_tag(tag))
+					{
+						::MessageBoxW(hWnd, L"Could not reach GitHub releases.\r\nCheck your connection and try again.", APP_NAME, MB_OK | MB_ICONWARNING);
+					}
+					else
+					{
+						std::wstring current = L"v";
+						current += APP_VERSION;
+						if(tag == current)
+						{
+							string msg;
+							msg.format(L"You have the latest version (%s).", APP_VERSION);
+							::MessageBoxW(hWnd, msg.c_str(), APP_NAME, MB_OK | MB_ICONINFORMATION);
+						}
+						else if(::MessageBoxW(hWnd, (std::wstring(L"A new version is available: ") + tag + L"\nInstalled: " + current + L"\n\nOpen the releases page?").c_str(),
+							APP_NAME, MB_YESNO | MB_ICONINFORMATION) == IDYES)
+						{
+							Open(hWnd, L"https://github.com/arvaidasre/Shell/releases");
+						}
+					}
+					break;
+				}
 				case ID_RESTART:
 					Windows::Explorer::Restart();
 					break;
@@ -1116,8 +1418,17 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                         case 'G':
                             main_window->SendCommand(ID_GITHUB);
                             break;
-                        case 'D':
-                            main_window->SendCommand(ID_DONATE);
+                        case 'L':
+                            main_window->SendCommand(ID_LANG);
+                            break;
+                        case 'O':
+                            main_window->SendCommand(ID_OPENCFG);
+                            break;
+                        case 'B':
+                            main_window->SendCommand(ID_BACKUPCFG);
+                            break;
+                        case 'P':
+                            main_window->SendCommand(ID_UPDATE);
                             break;
                     }
                 }
@@ -1151,7 +1462,8 @@ BOOL CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, [[maybe_unused]] L
                 L"-unregister\tUnregistering.\r\n"
                 L"-treat\t\tDisable Windows 11 context menu.\r\n"
                 L"-silent\t\tPrevents displaying messages.\r\n"
-                L"-restart\t\tRestart Windows Explorer.\r\n\r\n"
+                L"-restart\t\tRestart Windows Explorer.\r\n"
+                L"check\t\tValidate installation and config.\r\n\r\n"
                 //L"-runas:N\t\tLaunch with elevated privileges.\r\n"
                 //L"\t\tN=[admin | system | trustedinsaller]\r\n\r\n"
                 L"-?\t\tDispay this help message.\r\n\r\n"
