@@ -360,4 +360,446 @@ internal static class ShellService
         "lt" => "ru",
         _ => "en",
     };
+
+    public static readonly (string Id, string Name)[] MenuSections = new (string Id, string Name)[]
+    {
+        ("goto", "Go to"),
+        ("terminal", "Terminal"),
+        ("develop", "Development"),
+        ("file-manage", "File management"),
+    };
+
+    public static bool GetSectionEnabled(string id)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(id))
+                return false;
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return false;
+            var needle = "imports/" + id + ".nss";
+            foreach (var line in File.ReadAllLines(cfg, new UTF8Encoding(false)))
+            {
+                var t = line.TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                if (!t.StartsWith("import", StringComparison.Ordinal))
+                    continue;
+                if (t.Contains(needle, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static void SetSectionEnabled(string id, bool on)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(id))
+                return;
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return;
+            var enc = new UTF8Encoding(false);
+            var lines = File.ReadAllLines(cfg, enc).ToList();
+            var needle = "imports/" + id + ".nss";
+            var found = false;
+            for (var i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+                var trimmed = line.TrimStart();
+                var code = trimmed;
+                if (code.StartsWith("//", StringComparison.Ordinal))
+                    code = code.Substring(2).TrimStart();
+                if (!code.StartsWith("import", StringComparison.Ordinal))
+                    continue;
+                if (!code.Contains(needle, StringComparison.Ordinal))
+                    continue;
+                found = true;
+                var indent = line.Substring(0, line.Length - trimmed.Length);
+                lines[i] = on ? indent + "import 'imports/" + id + ".nss'"
+                              : indent + "// import 'imports/" + id + ".nss'";
+            }
+            if (!found && on)
+            {
+                File.AppendAllText(cfg, "\r\nimport 'imports/" + id + ".nss'\r\n", enc);
+                return;
+            }
+            if (!found)
+                return;
+            File.WriteAllLines(cfg, lines, enc);
+        }
+        catch { }
+    }
+
+    private static string? ThemePath()
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(EffectiveConfig());
+            if (dir is null)
+                return null;
+            return Path.Combine(dir, "imports", "theme.nss");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? GetThemeDotted(string key)
+    {
+        try
+        {
+            var path = ThemePath();
+            if (path is null || !File.Exists(path))
+                return null;
+            foreach (var line in File.ReadAllLines(path, new UTF8Encoding(false)))
+            {
+                var t = line.TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                if (!t.StartsWith(key, StringComparison.Ordinal))
+                    continue;
+                var rest = t.Substring(key.Length).TrimStart();
+                if (!rest.StartsWith("=", StringComparison.Ordinal))
+                    continue;
+                var value = rest.Substring(1).Trim();
+                value = value.TrimEnd(';').Trim();
+                var end = value.IndexOfAny(new[] { ' ', '\t', '/' });
+                if (end >= 0)
+                    value = value.Substring(0, end).Trim();
+                return value;
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static void SetThemeDotted(string key, string value)
+    {
+        try
+        {
+            var path = ThemePath();
+            if (path is null || !File.Exists(path))
+                return;
+            var enc = new UTF8Encoding(false);
+            var lines = File.ReadAllLines(path, enc).ToList();
+            for (var i = 0; i < lines.Count; i++)
+            {
+                var t = lines[i].TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                if (!t.StartsWith(key, StringComparison.Ordinal))
+                    continue;
+                var rest = t.Substring(key.Length).TrimStart();
+                if (!rest.StartsWith("=", StringComparison.Ordinal))
+                    continue;
+                var indent = lines[i].Substring(0, lines[i].Length - t.Length);
+                lines[i] = indent + key + " = " + value;
+                File.WriteAllLines(path, lines, enc);
+                return;
+            }
+            var alignIdx = -1;
+            for (var i = 0; i < lines.Count; i++)
+            {
+                var t = lines[i].TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                if (!t.StartsWith("image.align", StringComparison.Ordinal))
+                    continue;
+                var rest = t.Substring("image.align".Length).TrimStart();
+                if (!rest.StartsWith("=", StringComparison.Ordinal))
+                    continue;
+                alignIdx = i;
+                break;
+            }
+            var newIndent = "\t";
+            if (alignIdx >= 0)
+            {
+                var a = lines[alignIdx];
+                var at = a.TrimStart();
+                newIndent = a.Substring(0, a.Length - at.Length);
+                lines.Insert(alignIdx + 1, newIndent + key + " = " + value);
+            }
+            else
+            {
+                var closeIdx = -1;
+                for (var i = lines.Count - 1; i >= 0; i--)
+                {
+                    if (lines[i].Trim() == "}")
+                    {
+                        closeIdx = i;
+                        break;
+                    }
+                }
+                if (closeIdx < 0)
+                {
+                    for (var i = lines.Count - 1; i >= 0; i--)
+                    {
+                        if (lines[i].Contains("}", StringComparison.Ordinal))
+                        {
+                            closeIdx = i;
+                            break;
+                        }
+                    }
+                }
+                if (closeIdx >= 0)
+                    lines.Insert(closeIdx, newIndent + key + " = " + value);
+                else
+                    lines.Add(newIndent + key + " = " + value);
+            }
+            File.WriteAllLines(path, lines, enc);
+        }
+        catch { }
+    }
+
+    public static bool GetIconsEnabled()
+    {
+        try
+        {
+            var v = GetThemeDotted("image.enabled");
+            if (v is null)
+                return true;
+            if (v.Equals("1", StringComparison.OrdinalIgnoreCase)
+                || v.Equals("true", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (v.Equals("0", StringComparison.OrdinalIgnoreCase)
+                || v.Equals("false", StringComparison.OrdinalIgnoreCase))
+                return false;
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    public static void SetIconsEnabled(bool on)
+    {
+        try
+        {
+            SetThemeDotted("image.enabled", on ? "1" : "0");
+        }
+        catch { }
+    }
+
+    public static int GetIconSize()
+    {
+        try
+        {
+            var v = GetThemeDotted("image.size");
+            if (v is null)
+                return 16;
+            if (int.TryParse(v, out var n))
+                return n;
+            return 16;
+        }
+        catch
+        {
+            return 16;
+        }
+    }
+
+    public static void SetIconSize(int px)
+    {
+        try
+        {
+            if (px < 12)
+                px = 12;
+            if (px > 32)
+                px = 32;
+            SetThemeDotted("image.size", px.ToString());
+        }
+        catch { }
+    }
+
+    public static int GetShowDelay()
+    {
+        try
+        {
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return 150;
+            foreach (var line in File.ReadAllLines(cfg, new UTF8Encoding(false)))
+            {
+                var t = line.TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                var idx = t.IndexOf("showdelay", StringComparison.Ordinal);
+                if (idx < 0)
+                    continue;
+                var eq = t.IndexOf('=', idx);
+                if (eq < 0)
+                    continue;
+                var after = t.Substring(eq + 1).Trim();
+                var j = 0;
+                if (j < after.Length && (after[j] == '-' || after[j] == '+'))
+                    j++;
+                var k = j;
+                while (k < after.Length && char.IsDigit(after[k]))
+                    k++;
+                if (k == j)
+                    continue;
+                if (int.TryParse(after.Substring(0, k), out var n))
+                    return n;
+            }
+            return 150;
+        }
+        catch
+        {
+            return 150;
+        }
+    }
+
+    public static void SetShowDelay(int ms)
+    {
+        try
+        {
+            if (ms < 0)
+                ms = 0;
+            if (ms > 1000)
+                ms = 1000;
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return;
+            var enc = new UTF8Encoding(false);
+            var lines = File.ReadAllLines(cfg, enc).ToList();
+            var changed = false;
+            for (var i = 0; i < lines.Count; i++)
+            {
+                var t = lines[i].TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                var idx = t.IndexOf("showdelay", StringComparison.Ordinal);
+                if (idx < 0)
+                    continue;
+                var eq = lines[i].IndexOf('=', idx);
+                if (eq < 0)
+                    continue;
+                var prefix = lines[i].Substring(0, eq + 1);
+                var suffix = lines[i].Substring(eq + 1);
+                var s = 0;
+                while (s < suffix.Length && !char.IsDigit(suffix[s]) && suffix[s] != '-' && suffix[s] != '+')
+                    s++;
+                if (s >= suffix.Length)
+                    continue;
+                var e = s;
+                if (suffix[e] == '-' || suffix[e] == '+')
+                    e++;
+                while (e < suffix.Length && char.IsDigit(suffix[e]))
+                    e++;
+                if (e == s || (e == s + 1 && !char.IsDigit(suffix[s])))
+                    continue;
+                lines[i] = prefix + suffix.Substring(0, s) + ms.ToString() + suffix.Substring(e);
+                changed = true;
+                break;
+            }
+            if (changed)
+                File.WriteAllLines(cfg, lines, enc);
+        }
+        catch { }
+    }
+
+    public static bool GetTipsEnabled()
+    {
+        try
+        {
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return true;
+            foreach (var line in File.ReadAllLines(cfg, new UTF8Encoding(false)))
+            {
+                var t = line.TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                var idx = t.IndexOf("tip.enabled", StringComparison.Ordinal);
+                if (idx < 0)
+                    continue;
+                var eq = t.IndexOf('=', idx);
+                if (eq < 0)
+                    continue;
+                var value = t.Substring(eq + 1).Trim().TrimEnd(';').Trim();
+                var end = value.IndexOfAny(new[] { ' ', '\t', '/' });
+                if (end >= 0)
+                    value = value.Substring(0, end).Trim();
+                if (value.Equals("true", StringComparison.OrdinalIgnoreCase)
+                    || value.Equals("1", StringComparison.OrdinalIgnoreCase))
+                    return true;
+                if (value.Equals("false", StringComparison.OrdinalIgnoreCase)
+                    || value.Equals("0", StringComparison.OrdinalIgnoreCase))
+                    return false;
+                return true;
+            }
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    public static void SetTipsEnabled(bool on)
+    {
+        try
+        {
+            var cfg = EffectiveConfig();
+            if (!File.Exists(cfg))
+                return;
+            var enc = new UTF8Encoding(false);
+            var lines = File.ReadAllLines(cfg, enc).ToList();
+            var changed = false;
+            for (var i = 0; i < lines.Count; i++)
+            {
+                var t = lines[i].TrimStart();
+                if (t.StartsWith("//", StringComparison.Ordinal))
+                    continue;
+                var idx = t.IndexOf("tip.enabled", StringComparison.Ordinal);
+                if (idx < 0)
+                    continue;
+                var eq = lines[i].IndexOf('=', idx);
+                if (eq < 0)
+                    continue;
+                var prefix = lines[i].Substring(0, eq + 1);
+                var suffix = lines[i].Substring(eq + 1);
+                var s = 0;
+                while (s < suffix.Length && (suffix[s] == ' ' || suffix[s] == '\t'))
+                    s++;
+                var e = s;
+                while (e < suffix.Length && char.IsLetterOrDigit(suffix[e]))
+                    e++;
+                var replacement = on ? "true" : "false";
+                lines[i] = e > s ? prefix + suffix.Substring(0, s) + replacement + suffix.Substring(e)
+                                 : prefix + suffix.Substring(0, s) + replacement;
+                changed = true;
+                break;
+            }
+            if (changed)
+                File.WriteAllLines(cfg, lines, enc);
+        }
+        catch { }
+    }
+
+    public static void EditConfig()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "notepad.exe",
+                Arguments = "\"" + EffectiveConfig() + "\"",
+                UseShellExecute = true,
+            });
+        }
+        catch { }
+    }
 }

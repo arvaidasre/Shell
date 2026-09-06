@@ -25,6 +25,7 @@ public sealed partial class MainWindow : Window
         TitleText.Text = $"Shell {ShellService.ShellVersion}";
         RefreshStatus();
         SelectBoxes();
+        InitMenusCard();
 
         _ready = true;
         _ = System.Threading.Tasks.Task.Run(ShellService.EnsureStartMenuShortcut);
@@ -50,6 +51,61 @@ public sealed partial class MainWindow : Window
             if ((string)item.Tag == lang)
                 LanguageBox.SelectedItem = item;
         ThemeBox.SelectedIndex = 0;
+    }
+
+    private void InitMenusCard()
+    {
+        GotoToggle.IsOn = ShellService.GetSectionEnabled("goto");
+        TerminalToggle.IsOn = ShellService.GetSectionEnabled("terminal");
+        DevelopToggle.IsOn = ShellService.GetSectionEnabled("develop");
+        FileManageToggle.IsOn = ShellService.GetSectionEnabled("file-manage");
+        IconsToggle.IsOn = ShellService.GetIconsEnabled();
+        IconSizeSlider.Value = ShellService.GetIconSize();
+        DelaySlider.Value = ShellService.GetShowDelay();
+        TipsToggle.IsOn = ShellService.GetTipsEnabled();
+    }
+
+    private void SectionToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_ready || sender is not ToggleSwitch toggle || toggle.Tag is not string tag)
+            return;
+        ShellService.SetSectionEnabled(tag, toggle.IsOn);
+        ShowNotice("Restart Explorer to apply.", InfoBarSeverity.Informational);
+    }
+
+    private void IconsToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_ready)
+            return;
+        ShellService.SetIconsEnabled(IconsToggle.IsOn);
+        ShowNotice("Restart Explorer to apply.", InfoBarSeverity.Informational);
+    }
+
+    private void IconSizeSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (!_ready)
+            return;
+        ShellService.SetIconSize((int)System.Math.Round(e.NewValue));
+    }
+
+    private void DelaySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (!_ready)
+            return;
+        ShellService.SetShowDelay((int)System.Math.Round(e.NewValue));
+    }
+
+    private void TipsToggle_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_ready)
+            return;
+        ShellService.SetTipsEnabled(TipsToggle.IsOn);
+        ShowNotice("Restart Explorer to apply.", InfoBarSeverity.Informational);
+    }
+
+    private void EditConfigButton_Click(object sender, RoutedEventArgs e)
+    {
+        ShellService.EditConfig();
     }
 
     private void ShowNotice(string message, InfoBarSeverity severity = InfoBarSeverity.Informational)

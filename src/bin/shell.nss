@@ -31,9 +31,11 @@ import 'imports/modify.nss'
 
 // Minimal mode - no extra menus, only the system Win7-style menu.
 // Search/filter works automatically - just start typing with the menu open.
-// Optional menus (Go to, Terminal, Development, File management) ship in
-// imports/ - add an import line below to enable them, e.g.:
+// ===== Optional menus (toggle in Shell Manager or uncomment) =====
 // import 'imports/goto.nss'
+// import 'imports/terminal.nss'
+// import 'imports/develop.nss'
+// import 'imports/file-manage.nss'
 
 // Taskbar kept so right-click on the taskbar keeps working
 import 'imports/taskbar.nss'

@@ -79,6 +79,18 @@ Menu language: set `$lang` at the top of `shell.nss` to `"en"`,
 Open an [issue](https://github.com/arvaidasre/Shell/issues) — help
 translating is welcome.
 
+## Shell Manager (WinUI 3)
+
+`Shell.Manager.exe` (in the `Shell.Manager-*` release assets) is a
+modern Fluent settings app that lives next to `shell.exe`:
+
+* Status + Register / Unregister / Restart Explorer (UAC only when needed)
+* Menu language picker (EN/LT/RU), theme presets (Default/Mica/OLED/Light)
+* Menus & icons: toggle Go to / Terminal / Development / File management,
+  icon visibility + size, show delay, tooltips, one-click `shell.nss` editing
+* Tools: open config folder, backup, update check, Start Menu shortcut, diagnostics
+* Requires Windows 10 1809+; self-contained, no extra runtime to install
+
 ## Building from source
 
 Minimal toolchain (what the CI uses):
