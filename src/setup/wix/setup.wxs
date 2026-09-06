@@ -100,9 +100,11 @@
 						<File Id='mica.nss' Source='$(var.bin)\imports\themes\mica.nss' />
 						<File Id='oled.nss' Source='$(var.bin)\imports\themes\oled.nss' />
 						<File Id='light.nss' Source='$(var.bin)\imports\themes\light.nss' />
+						<File Id='win11.nss' Source='$(var.bin)\imports\themes\win11.nss' />
 					</Component>
 				</Directory>
 				</Directory>
+				<Directory Id='MANAGERDIR' Name='manager' />
 					<Component Id='APPLICATION' Guid='{ED9EFE4B-E83D-42BB-8938-F72B13A2FAD2}'>
 					<CreateFolder Directory='INSTALLFOLDER' />
 					<File Id='shell.exe' Checksum='yes' Name='shell.exe' KeyPath='yes' Source='$(var.bin)\shell.exe' />
@@ -129,6 +131,10 @@
 					WorkingDirectory='INSTALLFOLDER' Name='$(var.FullName)' Target='[!shell.exe]' />
 				<RegistryValue Key='Software\Nilesoft\Shell' Root='HKCU' Type='string' Value='' KeyPath='yes' />
 			</Component>
+			<Component Id='ManagerShortcut' Guid='{7C3A9B2D-4E5F-4A6B-8C7D-9E0F1A2B3C4D}'>
+				<Shortcut Id='ManagerShortcut' Directory='ProgramMenuFolder' Name='Shell Manager' Target='[INSTALLFOLDER]manager\Shell.Manager.exe' WorkingDirectory='INSTALLFOLDER' Description='Shell Manager - context menu settings' />
+				<RegistryValue Key='Software\Nilesoft\Shell\Manager' Root='HKCU' Type='string' Value='' KeyPath='yes' />
+			</Component>
 		</StandardDirectory>
 <!--
 		<ComponentGroup Id="IMPORTFiles" Directory="IMPORTS">
@@ -141,8 +147,10 @@
 			<ComponentRef Id='IMPORTS' />
 			<ComponentRef Id='LANG' />
 			<ComponentRef Id='THEMES' />
+			<ComponentGroupRef Id='MANAGER' />
 			<ComponentRef Id='CLEANUP' />
 			<ComponentRef Id='StartMenuShortcut' />
+			<ComponentRef Id='ManagerShortcut' />
 			<ComponentRef Id='DisplayIcon' />
 			<!--<ComponentGroupRef Id="IMPORTSFiles"/>-->
 		</Feature>
@@ -177,4 +185,11 @@
 
 		<?include ui.wxi ?>
 	</Package>
+	<Fragment>
+		<ComponentGroup Id='MANAGER' Directory='MANAGERDIR'>
+			<Files Include='$(var.bin)\manager\**'>
+				<Exclude Files='$(var.bin)\manager\*.pdb' />
+			</Files>
+		</ComponentGroup>
+	</Fragment>
 </Wix>

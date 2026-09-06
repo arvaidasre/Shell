@@ -18,6 +18,13 @@ jobs:
         # configuration: [debug, release]
         configuration: [release]
         platform: [x64, x86, arm64]
+        include:
+          - platform: x64
+            rid: win-x64
+          - platform: x86
+            rid: win-x86
+          - platform: arm64
+            rid: win-arm64
       fail-fast: false
 
     env:
@@ -36,6 +43,48 @@ jobs:
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore manager
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: dotnet restore src/manager/Shell.Manager/Shell.Manager.csproj -r ${{matrix.rid}}
+
+    - name: Publish manager
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild src/manager/Shell.Manager/Shell.Manager.csproj /p:Configuration=release /p:RuntimeIdentifier=${{matrix.rid}} /p:SelfContained=true /t:Publish /p:PublishDir="$env:GITHUB_WORKSPACE/publish-mgr/"
+
+    - name: Copy manager XBF/PRI
+      shell: pwsh
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        $binOut = "src/manager/Shell.Manager/bin/Release/net8.0-windows10.0.22621.0/${{matrix.rid}}"
+        $pub = "$env:GITHUB_WORKSPACE/publish-mgr"
+        Copy-Item "$binOut/*.xbf" -Destination $pub -Force
+        Copy-Item "$binOut/*.pri" -Destination $pub -Force
+        $viewsSrc = "$binOut/Views"
+        if (Test-Path $viewsSrc) {
+          New-Item -ItemType Directory -Path "$pub/Views" -Force | Out-Null
+          Copy-Item "$viewsSrc/*.xbf" -Destination "$pub/Views/" -Force
+        }
+
+    - name: Stage manager into src/bin/manager
+      shell: pwsh
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        $pub = "$env:GITHUB_WORKSPACE/publish-mgr"
+        $dst = "src/bin/manager"
+        if (Test-Path $dst) { Remove-Item "$dst/*" -Recurse -Force }
+        else { New-Item -ItemType Directory -Path $dst -Force | Out-Null }
+        Get-ChildItem -Path $pub -Recurse -File -Exclude *.pdb | ForEach-Object {
+          $rel = $_.FullName.Substring($pub.Length).TrimStart('\','/')
+          $target = Join-Path $dst $rel
+          New-Item -ItemType Directory -Path (Split-Path $target) -Force | Out-Null
+          Copy-Item $_.FullName -Destination $target -Force
+        }
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
