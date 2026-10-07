@@ -10,6 +10,13 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _appTheme = "System";
 
+    private static string ThemeToLabel(string stored) => stored switch
+    {
+        "Light" => "Light",
+        "Dark" => "Dark",
+        _ => "System",
+    };
+
     [ObservableProperty]
     private string _appVersion = string.Empty;
 
@@ -23,7 +30,8 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public void Load()
     {
-        AppVersion = ShellService.ShellVersion;
+        AppTheme = ThemeToLabel(App.Theme.LoadTheme());
+        AppVersion = $"Shell {ShellService.ShellVersion}";
         ConfigPath = ShellService.EffectiveConfig();
     }
 

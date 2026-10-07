@@ -19,7 +19,13 @@ public sealed partial class MainWindow : Window
 
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hwnd));
-        appWindow.Resize(new SizeInt32(900, 700));
+        appWindow.Resize(new SizeInt32(960, 720));
+
+        // Centre on the primary work area.
+        var area = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Nearest).WorkArea;
+        appWindow.Move(new PointInt32(
+            Math.Max(area.X, area.X + (area.Width - appWindow.Size.Width) / 2),
+            Math.Max(area.Y, area.Y + (area.Height - appWindow.Size.Height) / 2)));
 
         NavView.SelectedItem = NavView.MenuItems[0];
     }

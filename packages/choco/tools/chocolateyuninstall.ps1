@@ -1,24 +1,27 @@
 ﻿$ErrorActionPreference = 'Stop' # stop on all errors
+# The package installs an MSI, so uninstall through msiexec using the
+# product registered in the Windows uninstall list.
 $packageArgs = @{
   packageName   = $env:ChocolateyPackageName
-  softwareName  = 'Nilesoft Shell'
-  fileType      = 'exe'
-  silentArgs   = '/VERYSILENT /NORESTART' # Inno Setup
-  validExitCodes= @(0)
+  softwareName  = 'Nilesoft Shell*'
+  fileType      = 'msi'
+  silentArgs    = '/qn /norestart'
+  validExitCodes= @(0, 1605, 1614, 1641, 3010)
 }
 
 [array]$key = Get-UninstallRegistryKey -SoftwareName $packageArgs['softwareName']
 
 if ($key.Count -eq 1) {
-  $key | % {
-    $packageArgs['file'] = "$($_.UninstallString)"
+  $key | ForEach-Object {
+    $packageArgs['silentArgs'] = "$($_.PSChildName) $($packageArgs['silentArgs'])"
+    $packageArgs['file'] = ''
     Uninstall-ChocolateyPackage @packageArgs
   }
 } elseif ($key.Count -eq 0) {
-  Write-Warning "$packageName has already been uninstalled by other means."
+  Write-Warning "$env:ChocolateyPackageName has already been uninstalled by other means."
 } elseif ($key.Count -gt 1) {
   Write-Warning "$($key.Count) matches found!"
   Write-Warning "To prevent accidental data loss, no programs will be uninstalled."
   Write-Warning "Please alert package maintainer the following keys were matched:"
-  $key | % {Write-Warning "- $($_.DisplayName)"}
+  $key | ForEach-Object { Write-Warning "- $($_.DisplayName)" }
 }

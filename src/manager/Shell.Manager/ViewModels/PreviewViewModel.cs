@@ -58,16 +58,16 @@ public sealed partial class PreviewViewModel : ObservableObject
         StatusesText = $"{enabled} of {ShellService.MenuSections.Length} sections enabled (mock preview).";
 
         MenuItems.Add(PreviewMenuItem.Separator());
-        MenuItems.Add(new() { Label = "Rodyti", Glyph = "", HasSubmenu = true });
-        MenuItems.Add(new() { Label = "Rikiuoti", Glyph = "", HasSubmenu = true });
-        MenuItems.Add(new() { Label = "Atnaujinti", Glyph = "" });
+        MenuItems.Add(new() { Label = "View", Glyph = "", HasSubmenu = true });
+        MenuItems.Add(new() { Label = "Sort by", Glyph = "", HasSubmenu = true });
+        MenuItems.Add(new() { Label = "Refresh", Glyph = "" });
         MenuItems.Add(PreviewMenuItem.Separator());
-        MenuItems.Add(new() { Label = "Įklijuoti", Glyph = "" });
+        MenuItems.Add(new() { Label = "Paste", Glyph = "" });
         MenuItems.Add(PreviewMenuItem.Separator());
-        MenuItems.Add(new() { Label = "Naujas", Glyph = "", HasSubmenu = true });
+        MenuItems.Add(new() { Label = "New", Glyph = "", HasSubmenu = true });
         MenuItems.Add(PreviewMenuItem.Separator());
-        MenuItems.Add(new() { Label = "Ekrano parametrai", Glyph = "" });
-        MenuItems.Add(new() { Label = "Personalizuoti", Glyph = "" });
+        MenuItems.Add(new() { Label = "Display settings", Glyph = "" });
+        MenuItems.Add(new() { Label = "Personalize", Glyph = "" });
     }
 
     partial void OnSelectedPresetChanged(string value) => Load();
@@ -77,10 +77,10 @@ public sealed partial class PreviewViewModel : ObservableObject
 
     private static string SectionLabel(string id) => id switch
     {
-        "goto" => "Eiti į",
-        "terminal" => "Terminalas",
-        "develop" => "Kūrimo įrankiai",
-        "file-manage" => "Failų valdymas",
+        "goto" => "Go to",
+        "terminal" => "Terminal",
+        "develop" => "Development",
+        "file-manage" => "File management",
         _ => id,
     };
 

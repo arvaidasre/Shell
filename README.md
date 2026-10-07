@@ -52,7 +52,7 @@ third-party software.
 
 ## Install
 
-Download `Shell-1.9.19-portable-<arch>.zip` (or the `.msi`) from
+Download `Shell-<version>-portable-<arch>.zip` (or the `.msi`) from
 [Releases](https://github.com/arvaidasre/Shell/releases) — x64 for most
 PCs, arm64 for Snapdragon/ARM.
 

@@ -94,6 +94,7 @@
 		</Dialog>
 		<Dialog Id='ExitDialog' X='50' Y='50' Width='370' Height='270' Title='[ProductName] Setup'>
 			<Control Id='Finish' Type='PushButton' X='236' Y='243' Width='56' Height='17' Text='&amp;Finish' TabSkip='no' Default='yes' Cancel='yes'>
+				<Publish Event='DoAction' Value='LaunchManager' Condition='WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed' />
 				<Publish Event='EndDialog' Value='Return' />
 			</Control>
 			<Control Id='Cancel' Type='PushButton' X='304' Y='243' Width='56' Height='17' Text='Cancel' Disabled='yes' TabSkip='no' />
@@ -673,9 +674,9 @@
 			<RadioButton Value='DontUseRM' X='0' Y='20' Width='295' Height='16' Text='&amp;Do not close applications. A reboot will be required.' />
 		</RadioButtonGroup>
 
-		<TextStyle Id='WixUI_Font_Normal' FaceName='Tahoma' Size='8' />
-		<TextStyle Id='WixUI_Font_Bigger' FaceName='Tahoma' Size='12' />
-		<TextStyle Id='WixUI_Font_Title' FaceName='Tahoma' Size='9' Bold='yes' />
+		<TextStyle Id='WixUI_Font_Normal' FaceName='Segoe UI' Size='8' />
+		<TextStyle Id='WixUI_Font_Bigger' FaceName='Segoe UI' Size='12' />
+		<TextStyle Id='WixUI_Font_Title' FaceName='Segoe UI' Size='9' Bold='yes' />
 
 		<UIText Id='NewFolder' Value='Folder|New Folder' />
 		<UIText Id='AbsentPath' />

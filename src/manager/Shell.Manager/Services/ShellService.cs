@@ -92,60 +92,44 @@ internal static class ShellService
         return Path.Combine(InstallDir, "shell.nss");
     }
 
+    // Matches `$ui_lang = "lt"` as well as region codes such as "de-DE".
+    private static readonly System.Text.RegularExpressions.Regex LangRegex = new(
+        "(\\$(?:ui_)?lang\\s*=\\s*\")([A-Za-z]{2}(?:-[A-Za-z]{2})?)(\")",
+        System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
     public static string GetLanguage()
     {
-        var cfg = EffectiveConfig();
         try
         {
-            var bytes = File.ReadAllBytes(cfg);
-            var text = Encoding.Latin1.GetString(bytes);
-            foreach (var token in new[] { "$ui_lang", "$lang" })
-            {
-                var i = text.IndexOf(token, StringComparison.Ordinal);
-                if (i < 0)
-                    continue;
-                var q = text.IndexOf('"', i);
-                if (q > 0 && q + 3 < text.Length && text[q + 3] == '"'
-                    && char.IsAsciiLetter(text[q + 1]) && char.IsAsciiLetter(text[q + 2]))
-                    return text.Substring(q + 1, 2);
-            }
+            var text = Encoding.Latin1.GetString(File.ReadAllBytes(EffectiveConfig()));
+            var m = LangRegex.Match(text);
+            if (m.Success)
+                return m.Groups[2].Value;
         }
         catch { }
         return "en";
     }
 
-    /// <summary>Byte-level 2-letter swap (encoding-safe); inserts the line if missing.</summary>
+    /// <summary>Byte-level swap of the language code (encoding-safe); inserts the line if missing.</summary>
     public static bool SetLanguage(string code)
     {
-        if (code.Length != 2)
+        if (!System.Text.RegularExpressions.Regex.IsMatch(code, "^[A-Za-z]{2}(-[A-Za-z]{2})?$"))
             return false;
         var cfg = EffectiveConfig();
         try
         {
             var bytes = File.ReadAllBytes(cfg);
             var text = Encoding.Latin1.GetString(bytes);
-            var i = text.IndexOf("$ui_lang", StringComparison.Ordinal);
-            if (i < 0)
-                i = text.IndexOf("$lang", StringComparison.Ordinal);
-            if (i >= 0)
+            if (LangRegex.IsMatch(text))
             {
-                var q = text.IndexOf('"', i);
-                if (q > 0 && q + 3 < text.Length && text[q + 3] == '"'
-                    && char.IsAsciiLetter(text[q + 1]) && char.IsAsciiLetter(text[q + 2]))
-                {
-                    var chars = text.ToCharArray();
-                    chars[q + 1] = code[0];
-                    chars[q + 2] = code[1];
-                    File.WriteAllBytes(cfg, Encoding.Latin1.GetBytes(chars));
-                    return true;
-                }
-                return false;
+                text = LangRegex.Replace(text, m => m.Groups[1].Value + code + m.Groups[3].Value, 1);
+                File.WriteAllBytes(cfg, Encoding.Latin1.GetBytes(text));
+                return true;
             }
             if (bytes.Contains((byte)0))
                 return false; // non-single-byte file, don't touch
-            var line = $"$ui_lang = \"{code}\";\r\n";
-            var outBytes = Encoding.Latin1.GetBytes(line).Concat(bytes).ToArray();
-            File.WriteAllBytes(cfg, outBytes);
+            var line = $"$ui_lang = \"{code}\"\r\n";
+            File.WriteAllBytes(cfg, Encoding.Latin1.GetBytes(line).Concat(bytes).ToArray());
             return true;
         }
         catch
@@ -228,8 +212,11 @@ internal static class ShellService
             var dir = Path.GetDirectoryName(cfg);
             if (dir is null || !Directory.Exists(dir))
                 return null;
-            var parent = Path.GetDirectoryName(dir) ?? dir;
-            var bak = Path.Combine(parent, $"config-backup-{DateTime.Now:yyyyMMdd-HHmm}");
+            // Keep backups under %AppData% so they work for the Program Files install too.
+            var root = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Nilesoft", "Shell", "backups");
+            var bak = Path.Combine(root, $"config-backup-{DateTime.Now:yyyyMMdd-HHmmss}");
             CopyTree(dir, bak);
             return bak;
         }
@@ -245,7 +232,13 @@ internal static class ShellService
         foreach (var file in Directory.GetFiles(from))
             File.Copy(file, Path.Combine(to, Path.GetFileName(file)), overwrite: true);
         foreach (var dir in Directory.GetDirectories(from))
+        {
+            // Never recurse into the backup folder itself.
+            if (string.Equals(Path.GetFullPath(dir), Path.GetFullPath(to), StringComparison.OrdinalIgnoreCase)
+                || Path.GetFileName(dir).Equals("backups", StringComparison.OrdinalIgnoreCase))
+                continue;
             CopyTree(dir, Path.Combine(to, Path.GetFileName(dir)));
+        }
     }
 
     public static bool ApplyThemePreset(string name)
@@ -292,12 +285,19 @@ internal static class ShellService
             using var doc = JsonDocument.Parse(json);
             var tag = doc.RootElement.GetProperty("tag_name").GetString() ?? "";
             var latest = tag.StartsWith("v") ? tag[1..] : tag;
-            return (current, latest, !string.IsNullOrEmpty(latest) && latest != current);
+            return (current, latest, IsNewer(latest, current));
         }
         catch
         {
             return (current, "", false);
         }
+    }
+
+    private static bool IsNewer(string latest, string current)
+    {
+        if (!Version.TryParse(latest, out var l))
+            return false;
+        return !Version.TryParse(current, out var c) || l > c;
     }
 
     public static void OpenReleasesPage()
@@ -320,7 +320,10 @@ internal static class ShellService
         {
             var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
             var lnk = Path.Combine(programs, "Shell Manager.lnk");
-            if (File.Exists(lnk))
+            var common = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonPrograms),
+                "Shell Manager.lnk");
+            if (File.Exists(lnk) || File.Exists(common))
                 return true;
             var target = Environment.ProcessPath;
             if (target is null)
@@ -356,16 +359,30 @@ internal static class ShellService
 
     public static string LanguageName(string code) => code switch
     {
+        "ar" => "العربية",
+        "de-DE" => "Deutsch",
+        "en" => "English",
+        "es-ES" => "Español",
+        "it" => "Italiano",
+        "ja" => "日本語",
+        "ko" => "한국어",
         "lt" => "Lietuvių",
+        "no" => "Norsk",
+        "pt-BR" => "Português (Brasil)",
+        "ro" => "Română",
         "ru" => "Русский",
-        _ => "English",
+        "sl" => "Slovenščina",
+        "tr" => "Türkçe",
+        "ua" => "Українська",
+        "zh-CN" => "简体中文",
+        "zh-TW" => "繁體中文",
+        _ => code,
     };
 
-    public static string NextLanguage(string code) => code switch
+    public static readonly string[] LanguageCodes =
     {
-        "en" => "lt",
-        "lt" => "ru",
-        _ => "en",
+        "en", "lt", "ru", "ua", "de-DE", "es-ES", "it", "pt-BR", "ro", "sl", "tr", "no",
+        "ar", "ja", "ko", "zh-CN", "zh-TW",
     };
 
     public static readonly (string Id, string Name)[] MenuSections = new (string Id, string Name)[]
