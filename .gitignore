@@ -43,3 +43,26 @@ src/manager/**/obj/
 src/manager/.vs/
 src/packages/
 #src/bin/*.exe
+# Visual Studio / user-specific
+.vs/
+*.user
+*.suo
+
+# .NET / WinUI manager and tools
+bin/Debug/
+bin/Release/
+**/obj/
+src/manager/**/bin/
+publish/
+publish-mgr/
+
+# Build and packaging output
+dist/
+stage/
+*.msi
+*.wixpdb
+*.nupkg
+src/bin/*.dll
+src/bin/*.exe
+src/bin/ca.dll
+src/bin/manager/

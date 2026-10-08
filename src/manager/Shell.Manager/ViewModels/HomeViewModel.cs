@@ -22,6 +22,9 @@ public sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRegistered;
 
+    [ObservableProperty]
+    private bool _engineFound = true;
+
     public Action<string, int>? Notify { get; set; }
 
     public void Load() => Refresh();
@@ -34,32 +37,45 @@ public sealed partial class HomeViewModel : ObservableObject
             ? "Modern menu takeover: on"
             : "Modern menu takeover: off";
         ConfigText = ShellService.EffectiveConfig();
-        SubtitleText = $"Shell {ShellService.ShellVersion}";
+        EngineFound = ShellService.ShellExe is not null;
+        SubtitleText = EngineFound
+            ? $"Shell {ShellService.ShellVersion}"
+            : "shell.exe was not found next to the Manager. Reinstall Shell or run the Manager from its install folder.";
     }
 
     [RelayCommand]
     private void RefreshPage() => Refresh();
 
-    [RelayCommand]
-    private void Register()
+    [ObservableProperty]
+    private bool _isBusy;
+
+    private async Task RunAsync(string args, bool elevated, string okText, string failText)
     {
-        var ok = ShellService.RunEngine("-register -treat -restart", true);
-        Refresh();
-        Notify?.Invoke(ok ? "Registered successfully." : "Registration failed.", ok ? 1 : 3);
+        if (IsBusy)
+            return;
+        IsBusy = true;
+        try
+        {
+            // Engine calls can wait on a UAC prompt for a long time; keep the UI responsive.
+            var ok = await Task.Run(() => ShellService.RunEngine(args, elevated));
+            Refresh();
+            Notify?.Invoke(ok ? okText : failText, ok ? 1 : 3);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
-    private void Unregister()
-    {
-        var ok = ShellService.RunEngine("-unregister", true);
-        Refresh();
-        Notify?.Invoke(ok ? "Unregistered." : "Unregister failed.", ok ? 1 : 3);
-    }
+    private Task Register() =>
+        RunAsync("-register -treat -restart", true, "Registered successfully.", "Registration failed.");
 
     [RelayCommand]
-    private void RestartExplorer()
-    {
-        var ok = ShellService.RunEngine("-restart", false);
-        Notify?.Invoke(ok ? "Explorer restarted." : "Failed to restart Explorer.", ok ? 1 : 3);
-    }
+    private Task Unregister() =>
+        RunAsync("-unregister -restart", true, "Unregistered.", "Unregister failed.");
+
+    [RelayCommand]
+    private Task RestartExplorer() =>
+        RunAsync("-restart", false, "Explorer restarted.", "Failed to restart Explorer.");
 }

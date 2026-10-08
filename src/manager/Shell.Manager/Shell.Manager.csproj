@@ -17,6 +17,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>Shell.Manager</AssemblyName>
+    <ApplicationIcon>..\..\shared\Resource\main.ico</ApplicationIcon>
+    <Version>1.9.21</Version>
+    <Product>Shell Manager</Product>
+    <Company>Nilesoft</Company>
   </PropertyGroup>
 
   <ItemGroup>

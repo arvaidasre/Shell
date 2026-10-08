@@ -37,7 +37,7 @@
                         Style="{StaticResource CaptionTextBlockStyle}"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextWrapping="Wrap"
-                        Text="Language switches shell.nss lang include. Theme presets map to imports/theme.nss or imports/themes/&lt;name&gt;.nss." />
+                        Text="Language sets $ui_lang in shell.nss. Theme presets copy imports/themes/&lt;name&gt;.nss over imports/theme.nss. Restart Explorer to apply." />
                 </StackPanel>
             </Border>
         </StackPanel>

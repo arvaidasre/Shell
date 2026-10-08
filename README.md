@@ -52,7 +52,7 @@ third-party software.
 
 ## Install
 
-Download `Shell-1.9.19-portable-<arch>.zip` (or the `.msi`) from
+Download `Shell-<version>-portable-<arch>.zip` (or the `.msi`) from
 [Releases](https://github.com/arvaidasre/Shell/releases) — x64 for most
 PCs, arm64 for Snapdragon/ARM.
 
@@ -81,11 +81,11 @@ translating is welcome.
 
 ## Shell Manager (WinUI 3)
 
-`Shell.Manager.exe` (in the `Shell.Manager-*` release assets) is a
-modern Fluent settings app that lives next to `shell.exe`:
+`Shell.Manager.exe` is bundled in the MSI (Start menu → *Shell Manager*) and
+in the portable zip (`manager/` folder). It is a modern Fluent settings app:
 
 * Status + Register / Unregister / Restart Explorer (UAC only when needed)
-* Menu language picker (EN/LT/RU), theme presets (Default/Mica/OLED/Light)
+* Menu language picker (all 17 languages in `imports/lang`), theme presets (Default/Mica/OLED/Light)
 * Menus & icons: toggle Go to / Terminal / Development / File management,
   icon visibility + size, show delay, tooltips, one-click `shell.nss` editing
 * Tools: open config folder, backup, update check, Start Menu shortcut, diagnostics
@@ -103,7 +103,10 @@ Minimal toolchain (what the CI uses):
 * Solution: [`src/Shell.sln`](src/Shell.sln) — `release` / `x64`, `x86`, `arm64`
 
 CI builds every push/PR to `main` — see
-[Actions](https://github.com/arvaidasre/Shell/actions).
+[Actions](https://github.com/arvaidasre/Shell/actions). Pushing a `v*` tag
+builds the MSI and portable zip for each architecture and publishes a
+release. After a release, update the version and SHA-256 hashes in
+`packages/winget` and `packages/choco`.
 
 ## Screenshots
 

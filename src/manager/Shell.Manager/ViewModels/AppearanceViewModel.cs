@@ -9,25 +9,21 @@ public sealed record LanguageOption(string Code, string Name);
 
 public sealed partial class AppearanceViewModel : ObservableObject
 {
-    // Codes mapped from existing lang/*.nss files (de-DE.nss -> de, es-ES.nss -> es).
-    public List<LanguageOption> Languages { get; } = new()
-    {
-        new("en", "English"),
-        new("lt", "Lietuvių"),
-        new("ru", "Русский"),
-        new("de", "Deutsch"),
-        new("es", "Español"),
-    };
+    // One entry per imports/lang/<code>.nss file shipped with the installer.
+    public List<LanguageOption> Languages { get; } = ShellService.LanguageCodes
+        .Select(c => new LanguageOption(c, ShellService.LanguageName(c)))
+        .ToList();
 
     [ObservableProperty]
     private string _selectedLanguageCode = "en";
 
     [ObservableProperty]
-    private LanguageOption _selectedLanguage = new("en", "English");
+    private LanguageOption? _selectedLanguage;
 
-    partial void OnSelectedLanguageChanged(LanguageOption value)
+    partial void OnSelectedLanguageChanged(LanguageOption? value)
     {
-        SelectedLanguageCode = value.Code;
+        if (value is not null)
+            SelectedLanguageCode = value.Code;
     }
 
     // "default" = imports/theme.nss; rest map to imports/themes/<name>.nss.
@@ -41,7 +37,8 @@ public sealed partial class AppearanceViewModel : ObservableObject
     public void Load()
     {
         var code = ShellService.GetLanguage();
-        var match = Languages.Find(l => l.Code == code) ?? Languages[0];
+        var match = Languages.Find(l => string.Equals(l.Code, code, StringComparison.OrdinalIgnoreCase))
+            ?? Languages[0];
         SelectedLanguage = match;
         SelectedLanguageCode = match.Code;
     }

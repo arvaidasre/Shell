@@ -52,6 +52,9 @@
 		<Property Id='WixUIRMOption' Value='UseRM' />
 		<Property Id='MSIRESTARTMANAGERCONTROL' Value='Disable' />
 		<Property Id='DefaultUIFont' Value='WixUI_Font_Normal' />
+		<Property Id='WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT' Value='Launch Shell Manager' />
+		<Property Id='WIXUI_EXITDIALOGOPTIONALCHECKBOX' Value='1' />
+		<Property Id='WIXUI_EXITDIALOGOPTIONALTEXT' Value='Shell is registered with File Explorer. Use Shell Manager to switch menus, languages and themes.' />
 		<Property Id='ErrorDialog' Value='ErrorDlg' />
 		<Property Id='ARPURLINFOABOUT' Value='https://github.com/arvaidasre/Shell' />
 		<Property Id='ARPHELPLINK' Value='https://github.com/arvaidasre/Shell/issues' />
@@ -105,7 +108,7 @@
 				</Directory>
 				</Directory>
 				<Directory Id='MANAGERDIR' Name='manager' />
-					<Component Id='APPLICATION' Guid='{ED9EFE4B-E83D-42BB-8938-F72B13A2FAD2}'>
+				<Component Id='APPLICATION' Guid='{ED9EFE4B-E83D-42BB-8938-F72B13A2FAD2}'>
 					<CreateFolder Directory='INSTALLFOLDER' />
 					<File Id='shell.exe' Checksum='yes' Name='shell.exe' KeyPath='yes' Source='$(var.bin)\shell.exe' />
 					<File Id='shell.dll' Checksum='yes' Name='shell.dll' Source='$(var.bin)\shell.dll' />
@@ -171,6 +174,7 @@
 		</InstallUISequence>
 		<!-- End Upgrade -->
 		
+		<CustomAction Id='LaunchManager' Directory='MANAGERDIR' ExeCommand='&quot;[MANAGERDIR]Shell.Manager.exe&quot;' Return='asyncNoWait' Impersonate='yes' />
 		<CustomAction Id='OnUpdate' Return='ignore' BinaryRef='CA' DllEntry='Update' />
 		<CustomAction Id='OnInstall' Return='ignore' BinaryRef='CA' DllEntry='Install' />
 		<CustomAction Id='OnUninstall' Execute='firstSequence' Return='asyncWait' BinaryRef='CA' DllEntry='Uninstall' />
