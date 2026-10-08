@@ -2,14 +2,14 @@
 <br>
 <p>This chapter describes the syntax rules for the configuration files.</p>
 <p>The main configuration file <a href="#shell.nss"><code>shell.nss</code></a> is located in the installation directory of
-	<strong>Shell</strong>, depending on your <a href="/docs/installation">installation method</a>.
+	<strong>Shell</strong>, depending on your <a href="../installation.html">installation method</a>.
 </p>
 
 <h5 id="syntax-general">General rules</h5>
 <ul>
 	<li>Syntax is case-insensitive.</li>
 	<li>Spaces around the equal (<code>=</code>) sign are optional and are ignored.</li>
-	<li>The properties of <a href="/docs/configuration/modify-items">modify-items</a> and <a href="/docs/configuration/new-items">new-items</a> items are separated
+	<li>The properties of <a href="modify-items.html">modify-items</a> and <a href="new-items.html">new-items</a> items are separated
 		by blank spaces or on a <a href="#breaking-long-lines">separate line</a> and must be placed in
 		parentheses <code>( )</code>.
 	</li>
@@ -19,25 +19,25 @@
 
 <div class="notification is-info">
 	<i>Tip:</i> When there is an error, it is recorded in the log file (<code>shell.log</code>, which is also located in
-	your <a href="/docs/installation">installation directory</a>.).
+	your <a href="../installation.html">installation directory</a>.).
 </div>
 
 <h5 id="shell.nss">shell.nss structure</h5>
 <p>The global section <code>shell{}</code> may have the following subsections:</p>
 <ul>
-	<li>Section <a href="/docs/configuration/settings">settings{}</a>. Optional.</li>
-	<li>Section <a href="/docs/configuration/modify-items">modify-items</a> with
+	<li>Section <a href="settings.html">settings{}</a>. Optional.</li>
+	<li>Section <a href="modify-items.html">modify-items</a> with
 		instructions on how to <strong>change existing menuitems</strong>. Optional.
 		<ul>
 			<li>modify-items are only of 2 type: modify and remove.</li>
 		</ul>
 	</li>
-	<li>Section <a href="/docs/configuration/new-items">modify-items</a> with
-		definitions for <strong>new <a href="/docs/configuration/new-items#menuitem">menuitems</a></strong>.
+	<li>Section <a href="new-items.html">modify-items</a> with
+		definitions for <strong>new <a href="new-items.html#menuitem">menuitems</a></strong>.
 		Optional.
 		<ul>
-			<li>Dynamic <a href="/docs/configuration/new-items#menuitem">menuitems</a>
-				may have one of three types: <a href="/docs/configuration/new-items#menu">menu</a>, <a href="/docs/configuration/new-items#item">item</a>, or <a href="/docs/configuration/new-items#separator">separator (sep)</a>.
+			<li>Dynamic <a href="new-items.html#menuitem">menuitems</a>
+				may have one of three types: <a href="new-items.html#menu">menu</a>, <a href="new-items.html#item">item</a>, or <a href="new-items.html#separator">separator (sep)</a>.
 			</li>
 		</ul>
 	</li>
@@ -109,9 +109,9 @@ menu ( property-name = property-value   ... )
 		</ul>
 		The section name is written literally, without any quotes (or the percent signs).
 	</li>
-	<li id="import-syntax-path"><code>%path%</code> is a <a href="/docs/expressions/string">string</a> literal, that returns the path to the
+	<li id="import-syntax-path"><code>%path%</code> is a <a href="../expressions/string.html">string</a> literal, that returns the path to the
 		config file that shall be imported. This can be a relative path to the location of the file where the import tag is used, or it can be an absolute path. Expressions are
-		supported when using <a href="/docs/expressions/string#single-quotes">single quotes</a>.
+		supported when using <a href="../expressions/string.html#single-quotes">single quotes</a>.
 	</li>
 </ul>
 
@@ -197,6 +197,6 @@ The result would then look like so:
 <p>This syntax may be used nearly anywhere: </p>
 <ul>
 	<li>in any section</li>
-	<li>in the body of <a href="/docs/configuration/new-items#menu">menu tags</a>
+	<li>in the body of <a href="new-items.html#menu">menu tags</a>
 	</li>
 </ul>

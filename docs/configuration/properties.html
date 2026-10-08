@@ -141,27 +141,27 @@ Shell supports the following properties classes:
 </p>
 <dl>
 	<dt>mi</dt>
-	<dd><a href="/docs/configuration/modify-items#item">modify item</a>, i.e. the
+	<dd><a href="modify-items.html#item">modify item</a>, i.e. the
 		item
 		entry itself. Is basically required to evaluate if the process instructions are applied to any given target.
 	</dd>
 	<dt>mt</dt>
-	<dd><a href="/docs/configuration/modify-items#target">modify target</a>, i.e.
+	<dd><a href="modify-items.html#target">modify target</a>, i.e.
 		the menuitem of the existing menu to which the process instructions are applied
 	</dd>
 	<dt>nm</dt>
-	<dd><a href="/docs/configuration/new-items#menu">new menu type</a></dd>
+	<dd><a href="new-items.html#menu">new menu type</a></dd>
 	<dt>ni</dt>
-	<dd><a href="/docs/configuration/new-items#item">new item type</a></dd>
+	<dd><a href="new-items.html#item">new item type</a></dd>
 	<dt>ns</dt>
-	<dd><a href="/docs/configuration/new-items#separator">new separator type</a>.
+	<dd><a href="new-items.html#separator">new separator type</a>.
 	</dd>
 </dl>
 
 <!--<h5 id="_property-classes">Property Classes</h5>-->
 <h5 id="_validation-properties">Validation Properties</h5>
-<p>Determine if a given <a href="/docs/configuration/modify-items">Modify items</a>
-	or <a href="/docs/configuration/new-items">New items</a> entry should be
+<p>Determine if a given <a href="modify-items.html">Modify items</a>
+	or <a href="new-items.html">New items</a> entry should be
 	processed when a context menu is displayed.</p>
 
 <br/>
@@ -187,7 +187,7 @@ Shell supports the following properties classes:
 			<td>Where</td>
 			<td>mi, nm, ni, ns</td>
 			<td>Process given menuitem if <code>true</code> is returned. Allows the <strong>evaluation of arbitrary
-				<a href="/docs/expressions">expressions</a></strong>, e.g. <a href="/docs/functions#if"><code>if()</code></a>.<br/>
+				<a href="../expressions/index.html">expressions</a></strong>, e.g. <a href="../functions/index.html#if"><code>if()</code></a>.<br/>
 				Default = <span class="syntax-keyword">true</span>
 			</td>
 		</tr>
@@ -196,7 +196,7 @@ Shell supports the following properties classes:
 			<td>mi, nm, ni, ns</td>
 			<td>Display menuitem by <strong>type of selection</strong>. The value has one of the following
 				parameters
-				(of type <a href="/docs/configuration/modify-items">string</a>):
+				(of type <a href="modify-items.html">string</a>):
 				<table class="table">
 					<tr>
 						<td class="syntax-keyword">none</td>
@@ -341,8 +341,8 @@ Shell supports the following properties classes:
 </div>
 
 <h5 id="_filter-properties">Filter Properties</h5>
-<p>For <a href="/docs/configuration/modify-items">Modify items</a> entries only,
-	filter properties determine if a given menuitem is a valid <a href="/docs/configuration/modify-items#target">target</a> for the <a href="/docs/configuration/modify-items#process-instructions">process instructions</a></p>
+<p>For <a href="modify-items.html">Modify items</a> entries only,
+	filter properties determine if a given menuitem is a valid <a href="modify-items.html#target">target</a> for the <a href="modify-items.html#process-instructions">process instructions</a></p>
 
 <ul class="fold">
 	<li><a href="#find">Find</a></li>
@@ -863,13 +863,13 @@ tip = ["Lorem Ipsum is simply dummy text.", tip.info, 1.2]</code></pre>
 					<tr id="invoke-single">
 						<td class="syntax-keyword">0, single</td>
 						<td>execute the <a href="#command">command</a> only once in total. The list of selected
-							items can be accessed with <a href="/docs/functions/sel#sel"><code>@sel</code></a>
+							items can be accessed with <a href="../functions/sel.html#sel"><code>@sel</code></a>
 						</td>
 					</tr>
 					<tr id="invoke-multiple">
 						<td class="syntax-keyword">1, multiple</td>
 						<td>execute the <a href="#command"><code>command</code></a> once for every single item in the current
-							selection. The currently processed item can be accessed with e.g <a href="/docs/functions/sel#sel.path.quote"><code>@sel.path.quote</code></a>
+							selection. The currently processed item can be accessed with e.g <a href="../functions/sel.html#sel.path.quote"><code>@sel.path.quote</code></a>
 						</td>
 					</tr>
 				</table>
@@ -910,7 +910,7 @@ tip = ["Lorem Ipsum is simply dummy text.", tip.info, 1.2]</code></pre>
 		<tr id="verb">
 			<td>Verb</td>
 			<td>ni</td>
-			<td>Specifies the <strong>default operation</strong> for the selected file. Value type <a href="/docs/configuration/modify-items">string</a>
+			<td>Specifies the <strong>default operation</strong> for the selected file. Value type <a href="modify-items.html">string</a>
 				and can have one of the following parameters:<br/>
 				<table class="table">
 					<tr id="verb-null">
